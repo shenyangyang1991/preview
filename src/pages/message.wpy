@@ -1,0 +1,75 @@
+<template>
+  <background-image-set :src="backgroundImage">
+    <top-nav-container width="750" height="185" :background="messageHeaderImage">
+      <top-nav-button title="回到首页" url="/pages/index"/>
+    </top-nav-container>
+    <scroll-view class="message_list" style="height: {{scrollWrapHeight}}px;" scroll-y>
+      <repeat for="{{messageList}}" key="index" index="index" item="item">
+        <message-item :isBadge="item.latest" :date="item.createDate" :title="item.title" :content="item.content"></message-item>
+      </repeat>
+    </scroll-view>
+  </background-image-set>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import BackgroundImageSet from '@/components/ScrollBackgroundImageSet'
+  import TopNavContainer from '@/components/TopNavContainer'
+  import TopNavButton from '@/components/TopNavButton'
+  import MessageItem from '@/components/Message'
+  import Config from '@/config/index'
+  import http from '@/util/request'
+  import {time2DateByArray} from '@/util/tools'
+
+  export default class Message extends wepy.page {
+    config = {
+      navigationBarTitleText: '句读'
+    }
+    components = {
+      'background-image-set': BackgroundImageSet,
+      'top-nav-container': TopNavContainer,
+      'top-nav-button': TopNavButton,
+      'message-item': MessageItem
+    }
+
+    mixins = []
+
+    data = {
+      messageList: [],
+      backgroundImage: Config.image.common.backgroundImageM,
+      messageHeaderImage: Config.image.news.headerNavBackground,
+      scrollWrapHeight: 0
+    }
+
+    methods = {}
+
+    events = {}
+
+    async onLoad() {
+      let sys = wepy.getSystemInfoSync()
+      let bl = parseInt(sys.windowWidth / 750 * 209)
+      let height = sys.windowHeight - bl
+      this.scrollWrapHeight = height
+      wepy.showLoading({
+        title: '正在加载...',
+        mask: true
+      })
+      let data = await http({
+        url: Config.api.news.newsList.url,
+        method: Config.api.news.newsList.method
+      })
+
+      if (data && data.success) {
+        let res = data.result
+        this.messageList = time2DateByArray(res)
+        this.$apply()
+      } else if (data && !data.success) {
+        wepy.showModal({
+          content: data.result,
+          showCancel: false
+        })
+      }
+      wepy.hideLoading()
+    }
+  }
+</script>

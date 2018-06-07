@@ -1,0 +1,84 @@
+@import "../base/fn.less";
+
+.games_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100%;
+}
+.battle_games_head {
+  display: flex;
+  align-items: center;
+  width: 620rpx;
+  height: 73rpx;
+  padding: 0 58rpx;
+  margin: 68rpx 0 46rpx;
+
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+.games_head {
+  display: flex;
+  align-items: center;
+  width: 493rpx;
+  height: 74rpx;
+  padding: 0 58rpx;
+  margin: 68rpx 0 46rpx;
+
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.games_count, .games_time {
+  .font("medium");
+}
+
+.games_count {
+  flex: 1;
+  text-align: center;
+}
+
+.games_time {
+  padding: 0 30rpx;
+}
+
+.games_line {
+  width: 1rpx;
+  height: 16rpx;
+  border-right: 1rpx solid #000;
+}
+
+.games_submit {
+  margin-top: 40rpx;
+}
+
+.games_btn {
+  width: 300rpx;
+  height: 90rpx;
+  margin-bottom: 30rpx;
+  .font("medium");
+  font-size: 37rpx;
+  text-align: center;
+  line-height: 90rpx;
+  border: 1rpx solid #78685a;
+  border-radius: 15rpx;
+  background-color: #fff;
+}
+
+.games_tip {
+  padding-top: 20rpx;
+  .font("light");
+  font-size: 25rpx;
+  text-align: center;
+}
+
+.loading {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 15;
+  width: 100%;
+  height: 100%;
+}

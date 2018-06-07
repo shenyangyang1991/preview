@@ -1,0 +1,114 @@
+<template>
+  <view wx:if="{{show}}" class="alert_fix">
+    <view class="alert_container">
+      <view class="alert_head" style="background-image: url('{{background}}');"></view>
+      <view class="alert_content">
+        <view wx:key="unique" wx:for="{{content}}" wx:for-index="idx" wx:for-item="item">
+          {{item}}
+        </view>
+      </view>
+      <view class="alert_foot">
+        <view class="alert_btn" @tap="close">
+          【 确定 】
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+
+export default class Alert extends wepy.component {
+  data = {
+    show: false
+  }
+
+  props = {
+    content: {
+      type: Array,
+      default: []
+    },
+    background: {
+      type: String,
+      default: ''
+    }
+  }
+
+  methods = {
+    close() {
+      this.show = false
+      this.$apply()
+      setTimeout(() => {
+        this.$emit('alertOK')
+      }, 200)
+    },
+    open: () => {
+      this.show = true
+      this.$apply()
+    }
+  }
+}
+</script>
+
+<style lang="less">
+@import "../assets/style/base/fn.less";
+.alert_fix {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  z-index: 999;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: rgba(0, 0, 0, .6);
+}
+
+.alert_container {
+  width: 600rpx;
+  border-radius: 14rpx;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+.alert_head {
+  position: relative;
+  height: 105rpx;
+
+  .common-background-props();
+}
+
+.alert_content {
+  position: relative;
+  min-height: 145rpx;
+  padding: 30rpx;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.alert_foot {
+  position: relative;
+  height: 100rpx;
+}
+
+.alert_btn {
+  width: 200rpx;
+  height: 60rpx;
+  margin: 0 auto;
+
+  font-size: 25rpx;
+  text-align: center;
+  line-height: 60rpx;
+  color: #a0958b;
+
+  border: 1rpx solid #a0958b;
+  border-radius: 30rpx;
+}
+</style>

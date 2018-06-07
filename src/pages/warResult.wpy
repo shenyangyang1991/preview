@@ -1,0 +1,115 @@
+<template>
+ <background-image-set :src="backgroundImage">
+    <top-nav-container>
+      <top-nav-button title="回到首页" url="/pages/index"/>
+    </top-nav-container>
+    <section padding="60rpx 0 0">
+      <view class="personResult">
+        <view class="position_name">本轮成绩</view>
+        <view class="result_cn" style="background-image:url({{resultBackgroundImage}})">
+          <view class="result_wrap">
+            <view class="result_item">您共句读{{result.wordCount}}字  </view>
+            <view class="result_item">总用时：{{result.useTime}}</view>
+            <view class="result_item">累计正确句读：{{result.rightCount}} </view>
+            <view class="result_item">累计正确率：{{result.rightRate}}%</view>
+          </view>     
+        </view>
+        <view class="warResult">
+          <view class="getScore">得分:<view>{{result.mark}}</view></view>
+          <view class="getHonour" style="background-image:url({{titleBackgroundImage}})">{{result.Level}}</view>
+          <view class="getTxt">{{result.remark}}</view>
+          <image wx:if="{{result.rightRate<=30}}"  class="getBaby" src="{{data7}}"></image>
+          <image wx:elif="{{result.rightRate>30}}"  class="getBaby" src="{{data6}}"></image>
+          <image wx:elif="{{result.rightRate>50}}"  class="getBaby" src="{{data5}}"></image>
+          <image wx:elif="{{result.rightRate>60}}"  class="getBaby" src="{{data4}}"></image>
+          <image wx:elif="{{result.rightRate>70}}"  class="getBaby" src="{{data3}}"></image>
+          <image wx:elif="{{result.rightRate>80}}"  class="getBaby" src="{{data2}}"></image>
+          <image wx:elif="{{result.rightRate>90}}"  class="getBaby" src="{{data1}}"></image>
+        </view>
+        <!-- <view class="btmtips">
+          点击右上角分享给小伙伴们炫耀一下！
+        </view> -->
+        <view class="btn">
+          <button class="button-clear submit" form-type="submit" @tap="ranking">
+              【 查看榜单 】
+          </button>
+          <button class="button-clear submit" form-type="submit" @tap="next">
+              【 再来一轮 】
+          </button>
+        </view>
+      </view>
+    </section>
+  </background-image-set>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import BackgroundImageSet from '@/components/ScrollBackgroundImageSet'
+  import Section from '@/components/Section'
+  import TopNavContainer from '@/components/TopNavContainer'
+  import TopNavButton from '@/components/TopNavButton'
+  import Config from '@/config/index'
+  import http from '@/util/request'
+  import {connect} from 'wepy-redux'
+
+  @connect({})
+
+  export default class battleInvite extends wepy.page {
+    components = {
+      'background-image-set': BackgroundImageSet,
+      'section': Section,
+      'top-nav-container': TopNavContainer,
+      'top-nav-button': TopNavButton
+    }
+
+    mixins = []
+
+    data = {
+      backgroundImage: Config.image.common.backgroundImageM,
+      resultBackgroundImage: Config.image.result.resultBackgroundImage,
+      titleBackgroundImage: Config.image.result.titleBackgroundImage,
+      data1: Config.image.result.data1,
+      data2: Config.image.result.data2,
+      data3: Config.image.result.data3,
+      data4: Config.image.result.data4,
+      data5: Config.image.result.data5,
+      data6: Config.image.result.data6,
+      data7: Config.image.result.data7,
+      result: {}
+    }
+    computed = {}
+
+    methods = {
+      next() {
+        wepy.navigateTo({
+          url: `/pages/games?mode=random`
+        })
+      },
+      ranking() {
+        wepy.navigateTo({
+          url: `/pages/ranking-list`
+        })
+      }
+    }
+
+    events = {}
+
+    async onLoad(options) {
+      let {round} = options
+      let openid = wepy.getStorageSync('openid')
+      let data = await http({
+        url: `${Config.api.roundResult.url}/${round}/${openid}`,
+        method: Config.api.roundResult.method
+      })
+      if (data && data.success) {
+        this.result = data.result
+        this.$apply()
+      } else if (data && !data.success) {
+        wepy.showModal({
+          content: data.result,
+          showCancel: false
+        })
+      }
+    }
+  }
+</script>

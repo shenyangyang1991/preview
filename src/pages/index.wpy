@@ -1,0 +1,95 @@
+<template>
+  <background-image-set :src="backgroundImage">
+    <view class="index_container">
+      <view class="index_button_group">
+        <repeat for="{{btns}}" key="index" index="index" item="item">
+          <button :url="item.url" :title="item.title"></button>
+        </repeat>
+      </view>
+      <view class="index_tabs">
+        <repeat for="{{tabs}}" key="index" index="index" item="item">
+          <tab :src="item.src" :url="item.url" :title="item.title" :index="item.index" :isBadge="item.isBadge"></tab>
+        </repeat>
+      </view>
+    </view>
+  </background-image-set>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import initMixin from '@/mixins/init'
+  import BackgroundImageSet from '@/components/BackgroundImageSet'
+  import IndexTab from '@/components/IndexTab'
+  import IndexButton from '@/components/IndexButton'
+  import http from '@/util/request'
+  import Config from '@/config/index'
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '句读'
+    }
+    components = { // 顺序父亲到子孙
+      'background-image-set': BackgroundImageSet,
+      'button': IndexButton,
+      'tab': IndexTab
+    }
+
+    onShareAppMessage() {
+      return {
+        title: '学古文，先句读',
+        path: '/pages/index',
+        imageUrl: Config.image.sharePreview
+      }
+    }
+
+    mixins = [initMixin]
+
+    data = {
+      backgroundImage: Config.image.index.backgroundImage,
+      btns: [{
+        url: '/pages/selected-mode',
+        title: '单人游戏'
+      }, {
+        url: '/pages/index',
+        title: '多人对战'
+      }, {
+        url: '/pages/ranking-list',
+        title: '榜单'
+      }],
+      tabs: [{
+        title: '最新消息',
+        src: Config.image.index.newsTab,
+        index: 1,
+        url: '/pages/message'
+      }, {
+        title: '意见反馈',
+        src: Config.image.index.opinionTab,
+        index: 2,
+        url: '/pages/concat'
+      }]
+    }
+
+    computed = {}
+
+    methods = {}
+
+    events = {}
+
+    async onShow() {
+      let latest = await http({
+        url: Config.api.news.latest.url,
+        method: Config.api.news.latest.method
+      })
+      if (latest && latest.success) {
+        let res = latest.result
+        if (res.latest === 'true') {
+          this.tabs[0].isBadge = true
+          this.$apply()
+        }
+      }
+    }
+
+    onLoad() {
+    }
+  }
+</script>

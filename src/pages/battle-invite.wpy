@@ -1,0 +1,90 @@
+<template>
+  <background-image-set :src="backgroundImage">
+    <view class="full-container" @tap="globelBlur">
+      <section>
+        <view class="invite_tt" style="background-image: url('{{inviteHeader}}');">邀请好友</view>
+        <people :peoples="peoples"></people>
+        <view class="invite_select">
+          <tpicker title="选择题库" :classes="question" :defaultValue="firstQues"></tpicker>
+          <dpicker title="选择时间"></dpicker>
+        </view>
+        <view class="invite_join">
+            <view class="invite_start">
+              【 开始 】
+            </view>
+            <view class="text_tips">
+              <view class="text_field">
+                <view class="text">每个玩家 </view>
+                <view class="text">最多可邀请3人</view>
+              </view>
+              <view class="text_field">
+                <view class="text">到达规定时间</view>
+                <view class="text">游戏自动结束</view>
+              </view>
+              <view class="text_field">
+                <view class="text">成绩根据玩家</view>
+                <view class="text">提交过的题目</view>
+                <view class="text">进行统计</view>
+              </view>
+            </view>
+          </view>
+      </section>
+    </view>
+  </background-image-set>
+</template>
+
+<script>
+import wepy from 'wepy'
+import initMixin from '@/mixins/init'
+import BackgroundImageSet from '@/components/BackgroundImageSet'
+import Section from '@/components/Section'
+import People from '@/components/People'
+import Picker from '@/components/Picker'
+import Config from '@/config/index'
+
+export default class BattleInvite extends wepy.page {
+  components = {
+    'background-image-set': BackgroundImageSet,
+    'section': Section,
+    'people': People,
+    'tpicker': Picker,
+    'dpicker': Picker
+  }
+  methods = {
+    globelBlur() {
+      this.$broadcast('blur')
+    }
+  }
+  mixins = [initMixin]
+  events = {
+    globalBlur: () => {
+      this.$broadcast('blur')
+    }
+  }
+  data = {
+    question: ['温故知新', '初露锋芒', '学海无涯'],
+    firstQues: '温故知新',
+    backgroundImage: Config.image.common.backgroundImageM,
+    inviteHeader: Config.image.invitation.headerBackgroundImage,
+    peoples: [{
+      name: '申杨杨1',
+      url: 'https://wx.qlogo.cn/mmhead/Q3auHgzwzM4naQQof7QnxX2x95ugKAwXicEL7xt7wrFFhrvmmhsxj5g/0'
+    }, {
+      name: '申杨杨2',
+      url: 'https://wx.qlogo.cn/mmhead/Q3auHgzwzM4naQQof7QnxX2x95ugKAwXicEL7xt7wrFFhrvmmhsxj5g/0'
+    }, {
+      name: '申杨杨3',
+      url: 'https://wx.qlogo.cn/mmhead/Q3auHgzwzM4naQQof7QnxX2x95ugKAwXicEL7xt7wrFFhrvmmhsxj5g/0'
+    }, {
+      name: '申杨杨4',
+      url: 'https://wx.qlogo.cn/mmhead/Q3auHgzwzM4naQQof7QnxX2x95ugKAwXicEL7xt7wrFFhrvmmhsxj5g/0'
+    }]
+  }
+}
+</script>
+
+<style lang="less">
+  .full-container {
+    height: 100%;
+  }
+</style>

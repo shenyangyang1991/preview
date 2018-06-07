@@ -1,0 +1,84 @@
+<template>
+  <background-image-set :src="backgroundImage">
+    <section>
+      <image class="auth_logo" src="{{authLogo}}"></image>
+      <view class="auth_title">
+        句读Pro申请获得以下权限：
+      </view>
+      <view class="auth_desc">
+        您的公开信息（昵称、头像等）
+      </view>
+       <button class="button-clear" open-type="getUserInfo">
+        <view class="auth_btn">
+          【 确认授权 】
+        </view>
+       </button>
+    </section>
+  </background-image-set>
+</template>
+
+<script>
+import wepy from 'wepy'
+import BackgroundImageSet from '@/components/BackgroundImageSet'
+import Section from '@/components/Section'
+import Config from '@/config/index'
+
+export default class Auth extends wepy.page {
+  data = {
+    backgroundImage: Config.image.common.backgroundImageS,
+    authLogo: Config.image.authLogo
+  }
+  components = {
+    'background-image-set': BackgroundImageSet,
+    'section': Section
+  }
+  timer = null
+  async authorizeInfo() {
+    let sets = await wepy.getSetting()
+    if (sets.authSetting['scope.userInfo']) {
+      clearInterval(this.timer)
+      wepy.reLaunch({
+        url: '/pages/index'
+      })
+    }
+  }
+  onLoad() {
+    this.timer = setInterval(() => {
+      this.authorizeInfo()
+    }, 800)
+  }
+}
+</script>
+
+<style lang="less">
+@import "../assets/style/base/fn.less";
+.auth_logo {
+  width: 180rpx;
+  height: 180rpx;
+  margin-bottom: 70rpx;
+}
+
+.auth_title {
+  .font("medium");
+  font-size: 35rpx;
+}
+
+.auth_desc {
+  font-size: 30rpx;
+}
+
+.auth_btn {
+  margin-top: 85rpx;
+  width: 425rpx;
+  height: 75rpx;
+
+  font-size: 30rpx;
+  .font("medium");
+  text-align: center;
+  line-height: 75rpx;
+
+  border: 1rpx solid #000000;
+  border-radius: 14rpx;
+  background-color: #fff;
+}
+</style>

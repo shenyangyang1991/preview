@@ -1,0 +1,123 @@
+<template>
+  <background-image-set :src="backgroundImage">
+    <top-nav-container>
+      <top-nav-button title="回到首页" url="/pages/index"/>
+    </top-nav-container>
+    <section padding="60rpx 0 0">
+      <view class="ranking">
+        <view class="ranking_tabs">
+          <view wx:key="unique" wx:for="{{tabs}}" wx:for-index="idx" wx:for-item="item" class="ranking_tab {{idx == '0' ? 'ranking_tab_line' : ''}} {{idx == activeIndex ? 'ranking_tab_active' : ''}}" @tap="click({{idx}})">
+            {{item.title}}
+          </view>
+        </view>
+        <repeat for="{{tabs}}" key="index" index="index" item="item">
+          <ranking-content :hidden="index != activeIndex" :list.sync="contents[index]" :userInfo.sync="userInfos[index]"></ranking-content>
+        </repeat>
+      </view>
+
+      <view class="ranking_help">
+        <view class="p">
+          <view class="main">1.“得分”</view>
+          <view class="txt">=正确数×正确率。</view>
+        </view>
+        <view class="p">
+          <view class="main">2.“总榜”</view>
+          <view class="txt">是您在“战”模式下的综合累计答题排名。</view>
+        </view>
+        <view class="p">
+          <view class="main">3.“单轮榜”</view>
+          <view class="txt">记录您在“战”模式下的单轮最好成绩。</view>
+        </view>
+      </view>
+    </section>
+  </background-image-set>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import BackgroundImageSet from '@/components/ScrollBackgroundImageSet'
+  import Section from '@/components/Section'
+  import TopNavContainer from '@/components/TopNavContainer'
+  import TopNavButton from '@/components/TopNavButton'
+  import RankingContent from '@/components/RankingContent'
+  import Config from '@/config/index'
+  import http from '@/util/request'
+
+  export default class RankingList extends wepy.page {
+    config = {
+      navigationBarTitleText: '句读'
+    }
+    components = {
+      'background-image-set': BackgroundImageSet,
+      'section': Section,
+      'top-nav-container': TopNavContainer,
+      'top-nav-button': TopNavButton,
+      'ranking-content': RankingContent
+    }
+
+    mixins = []
+
+    data = {
+      backgroundImage: Config.image.common.backgroundImageM,
+      tabs: [{
+        title: '总榜'
+      }, {
+        title: '单轮榜'
+      }],
+      activeIndex: 0,
+      contents: [],
+      userInfos: []
+    }
+  
+    computed = {}
+
+    methods = {
+      click(index) {
+        this.activeIndex = index
+        this.$apply()
+      }
+    }
+
+    events = {}
+
+    async onLoad(options) {
+      wepy.showLoading({
+        title: '正在加载...',
+        mask: true
+      })
+      let openid = wepy.getStorageSync('openid')
+      let data = await http({
+        url: Config.api.rankList.url,
+        method: Config.api.rankList.method,
+        data: {
+          openid: openid
+        }
+      })
+      if (data && data.success) {
+        let res = data.result
+        let form = res && res.form
+        if (form) {
+          this.contents.push(form.totalList)
+          this.contents.push(form.list)
+          this.userInfos.push({
+            userName: `${form.userName}的成绩`,
+            mark: form.tmark,
+            number: form.tindex
+          })
+          this.userInfos.push({
+            userName: `${form.userName}的最好成绩`,
+            mark: form.mark,
+            number: form.index
+          })
+          this.$apply()
+        }
+      } else if (data && !data.success) {
+        wepy.showModal({
+          content: data.result,
+          showCancel: false
+        })
+      }
+      wepy.hideLoading()
+    }
+  }
+</script>

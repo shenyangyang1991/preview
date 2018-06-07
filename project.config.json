@@ -1,0 +1,95 @@
+{
+	"description": "A WePY project",
+	"setting": {
+		"urlCheck": true,
+		"es6": false,
+		"postcss": false,
+		"minified": false,
+		"newFeature": true
+	},
+	"compileType": "miniprogram",
+	"appid": "wxd8bd54ab9f6ca53d",
+	"projectname": "preview",
+	"miniprogramRoot": "./dist",
+	"condition": {
+		"search": {
+			"current": -1,
+			"list": []
+		},
+		"conversation": {
+			"current": -1,
+			"list": []
+		},
+		"plugin": {
+			"current": -1,
+			"list": []
+		},
+		"game": {
+			"list": []
+		},
+		"miniprogram": {
+			"current": 9,
+			"list": [
+				{
+					"id": -1,
+					"name": "意见反馈",
+					"pathName": "pages/concat",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "news",
+					"pathName": "pages/message",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "share",
+					"pathName": "pages/share",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "ranking",
+					"pathName": "pages/ranking-list",
+					"query": ""
+				},
+				{
+					"id": 4,
+					"name": "selected-mode",
+					"pathName": "pages/selected-mode",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "games",
+					"pathName": "pages/games",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "game_result",
+					"pathName": "pages/games-result",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "auth",
+					"pathName": "pages/auth",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "invite",
+					"pathName": "pages/battle-invite",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "ba",
+					"pathName": "pages/battle-games"
+				}
+			]
+		}
+	}
+}

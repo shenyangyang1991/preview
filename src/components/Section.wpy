@@ -1,0 +1,24 @@
+<template>
+  <view class="section" style="padding: {{padding}};">
+    <slot></slot>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Section extends wepy.component {
+    props = ['padding']
+  }
+</script>
+
+<style lang="less">
+  .section {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+</style>

@@ -1,0 +1,39 @@
+<template>
+  <navigator url="{{url}}" hover-class="none">
+    <view class="index_nav_btton" style="background-image: url('{{image.indexButton}}');">
+      {{title}}
+    </view>
+  </navigator>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import Config from '@/config/index'
+
+  export default class IndexButton extends wepy.component {
+    props = ['url', 'title']
+    data = {
+      image: {
+        indexButton: Config.image.index.navButton
+      }
+    }
+  }
+</script>
+
+<style lang="less">
+  @import "../assets/style/base/fn.less";
+
+  .index_nav_btton {
+    width: 277rpx;
+    height: 77rpx;
+    margin-top: 18rpx;
+
+    .font("medium");
+    font-size: 45rpx;
+    text-align: center;
+    line-height: 77rpx;
+
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  }
+</style>

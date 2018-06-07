@@ -1,0 +1,30 @@
+<template>
+  <navigator url="{{url}}" hover-class="none" delta="9999" open-type="navigateBack">
+    <view class="top_nav_button">
+      {{title}}
+    </view>
+  </navigator>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class TopNavButton extends wepy.component {
+    props = ['title', 'url']
+  }
+</script>
+
+<style lang="less">
+  .top_nav_button {
+    width: 170rpx;
+    height: 50rpx;
+
+    line-height: 50rpx;
+    text-align: center;
+
+    border: 1rpx solid #000000;
+    border-radius: 6rpx;
+
+    background-color: #ffffff;
+  }
+</style>

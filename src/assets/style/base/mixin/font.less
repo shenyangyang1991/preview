@@ -1,0 +1,25 @@
+// 使用思源黑体自定义字体
+// @fontUrl: "http://192.168.1.105/JuDu/font";
+
+// .fontSet(@name:"normal") {
+//   @font-face {font-family: "self-@{name}";
+//     src: url("@{fontUrl}/@{name}/@{name}.eot?t=1484311526877"); /* IE9*/
+//     src: url("@{fontUrl}/@{name}/@{name}.eot?t=1484311526877#iefix") format("embedded-opentype"), /* IE6-IE8 */
+//     url("@{fontUrl}/@{name}/@{name}.woff?t=1484311526877") format("woff"), /* chrome, firefox */
+//     url("@{fontUrl}/@{name}/@{name}.ttf?t=1484311526877") format("truetype"), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+//     url("@{fontUrl}/@{name}/@{name}.svg?t=1484311526877#iconfont") format("svg"); /* iOS 4.1- */
+//   }
+// }
+
+// .font(@fontSet:"normal") {
+//   font-family: "self-@{fontSet}" !important;
+// }
+.font(@fontSet) when (@fontSet = "normal") {
+  font-weight: normal;
+}
+.font (@fontSet) when (@fontSet = "regular") {
+  font-weight: 500;
+}
+.font (@fontSet) when (@fontSet = "medium") {
+  font-weight: 800;
+}

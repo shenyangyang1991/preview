@@ -1,0 +1,30 @@
+<template>
+  <view class="background-image-set" style="background-image: url('{{src}}');">
+    <view class="container">
+      <slot></slot>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class BackgroundImageSet extends wepy.component {
+    props = ['src']
+  }
+</script>
+
+<style lang="less">
+  @import "../assets/style/base/fn.less";
+
+  .background-image-set {
+    position: relative;
+    height: 100%;
+    .common-background-props();
+    background-attachment: fixed;
+
+    .container {
+      height: 100%;
+    }
+  }
+</style>

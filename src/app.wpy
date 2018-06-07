@@ -1,0 +1,50 @@
+<style lang="less">
+@import "assets/style/ui.less";
+</style>
+
+<script>
+import wepy from 'wepy'
+import 'wepy-async-function'
+
+import { setStore } from 'wepy-redux'
+import configStore from './store'
+
+const store = configStore()
+setStore(store)
+
+export default class extends wepy.app {
+  config = {
+    pages: [
+      'pages/index',
+      'pages/games-result',
+      'pages/concat',
+      'pages/message',
+      'pages/share',
+      'pages/ranking-list',
+      'pages/selected-mode',
+      'pages/selected-question',
+      'pages/games',
+      'pages/personResult',
+      'pages/warResult',
+      'pages/auth',
+      'pages/battle-invite',
+      'pages/battle-games'
+    ],
+    window: {
+      backgroundTextStyle: 'light',
+      navigationBarBackgroundColor: '#fff',
+      navigationBarTitleText: '句读',
+      navigationBarTextStyle: 'black'
+    }
+  }
+
+  constructor () {
+    super()
+    this.use('requestfix')
+    this.use('promisify')
+  }
+
+  onLaunch() {
+  }
+}
+</script>

@@ -1,0 +1,99 @@
+<template>
+  <view>
+    <navigator url="{{url}}" hover-class="none">
+      <view class="tab">
+        <view class="tab_icon">
+          <image class="tab_icon_{{index}}" src="{{src}}"></image>
+          <view wx:if="{{isBadge}}" class="tab_badge">
+            new
+          </view>
+        </view>
+        <view class="tab_title">
+          {{title}}
+        </view>
+      </view>
+    </navigator>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import Config from '@/config/index'
+
+  export default class IndexTab extends wepy.component {
+    props = ['title', 'src', 'index', 'isBadge', 'url']
+    data = {
+      show: false,
+      shareBackgroundImage: Config.image.shareBackgroundImage
+    }
+    methods = {
+      share() {
+        this.show = true
+        this.$apply()
+      },
+      close() {
+        this.show = false
+        this.$apply()
+      }
+    }
+  }
+</script>
+
+<style lang="less">
+  .tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100rpx;
+    margin: 0 25rpx;
+
+    .tab_icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+      height: 65rpx;
+
+      .tab_badge {
+        position: absolute;
+        right: -12rpx;
+        top: -8rpx;
+        width: 30rpx;
+        height: 30rpx;
+
+        font-size: 12rpx;
+        color:#ffffff;
+        line-height: 30rpx;
+        text-align: center;
+
+        border-radius: 15rpx;
+        background: #d91a00;
+      }
+    }
+
+    .tab_icon_1 {
+      width: 54rpx;
+      height: 62rpx;
+    }
+
+    .tab_icon_2 {
+      width: 65rpx;
+      height: 65rpx;
+    }
+
+    .tab_title {
+      padding-top: 12rpx;
+      font-size: 25rpx;
+    }
+
+    .share_bg {
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 99;
+    }
+  }
+</style>

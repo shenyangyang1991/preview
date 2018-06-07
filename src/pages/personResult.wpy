@@ -1,0 +1,97 @@
+<template>
+  <background-image-set :src="backgroundImage">
+    <top-nav-container>
+      <top-nav-button title="回到首页" url="/pages/index"/>
+    </top-nav-container>
+    <section padding="60rpx 0 0">
+      <view class="personResult">
+        <view class="position_name">本轮成绩</view>
+        <view class="result_cn" style="background-image:url({{resultBackgroundImage}})">
+          <view class="result_wrap">
+            <view class="result_item">您共句读{{result.wordCount}}字  </view>
+            <view class="result_item">总用时：{{result.useTime}}</view>
+            <view class="result_item">累计正确句读：{{result.rightCount}} </view>
+            <view class="result_item">累计正确率：{{result.rightRate}}%</view>
+          </view>      
+        </view>
+        <view class="textTips">
+          <image src="{{hrImage}}"></image>
+          <view>{{result.remark}}</view>
+          <image src="{{hrImage}}"></image>
+        </view>
+        <!-- <view class="btmtips">
+          点击右上角分享给小伙伴们炫耀一下！
+        </view> -->
+        <button class="button-clear submit" form-type="submit" @tap="next">
+            【 再战一回 】
+        </button>
+      </view>
+    </section>   
+  </background-image-set>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import BackgroundImageSet from '@/components/ScrollBackgroundImageSet'
+  import Section from '@/components/Section'
+  import TopNavContainer from '@/components/TopNavContainer'
+  import TopNavButton from '@/components/TopNavButton'
+  import Config from '@/config/index'
+  import http from '@/util/request'
+  import {connect} from 'wepy-redux'
+
+  @connect({})
+
+  export default class battleInvite extends wepy.page {
+    config = {
+      navigationBarTitleText: '句读'
+    }
+    components = {
+      'background-image-set': BackgroundImageSet,
+      'section': Section,
+      'top-nav-container': TopNavContainer,
+      'top-nav-button': TopNavButton
+    }
+
+    mixins = []
+
+    data = {
+      backgroundImage: Config.image.common.backgroundImageM,
+      hrImage: Config.image.result.hrImage,
+      resultBackgroundImage: Config.image.result.resultBackgroundImage,
+      result: {},
+      classes: 0
+    }
+
+    computed = {}
+
+    methods = {
+      next() {
+        wepy.navigateTo({
+          url: `/pages/games?mode=learn&classes=${this.classes}`
+        })
+      }
+    }
+
+    events = {}
+
+    async onLoad(options) {
+      let {round, type} = options
+      let openid = wepy.getStorageSync('openid')
+      let data = await http({
+        url: `${Config.api.roundTrain.url}/${round}/${type}/${openid}`,
+        method: Config.api.roundTrain.method
+      })
+      if (data && data.success) {
+        this.result = data.result
+        this.classes = type
+        this.$apply()
+      } else if (data && !data.success) {
+        wepy.showModal({
+          content: data.result,
+          showCancel: false
+        })
+      }
+    }
+  }
+</script>

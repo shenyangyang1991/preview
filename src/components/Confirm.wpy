@@ -1,0 +1,129 @@
+<template>
+  <view wx:if="{{show}}" class="confirm_fix">
+    <view class="confirm_container">
+      <view class="confirm_head" style="background-image: url('{{background}}');"></view>
+      <view class="confirm_content">
+        <view wx:key="unique" wx:for="{{content}}" wx:for-index="idx" wx:for-item="item">
+          {{item}}
+        </view>
+      </view>
+      <view class="confirm_foot">
+        <view class="confirm_btn fll" @tap="ok">
+          【 确定 】
+        </view>
+        <view class="confirm_btn" @tap="cancel">
+          【 取消 】
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+
+export default class Confirm extends wepy.component {
+  data = {
+    show: false
+  }
+
+  props = {
+    content: {
+      type: Array,
+      default: []
+    },
+    background: {
+      type: String,
+      default: ''
+    }
+  }
+
+  methods = {
+    ok() {
+      this.show = false
+      this.$apply()
+      setTimeout(() => {
+        this.$emit('confirmOk')
+      }, 200)
+    },
+    cancel() {
+      this.show = false
+      this.$apply()
+      setTimeout(() => {
+        this.$emit('confirmCancel')
+      }, 200)
+    },
+    open: () => {
+      this.show = true
+      this.$apply()
+    }
+  }
+}
+</script>
+
+<style lang="less">
+@import "../assets/style/base/fn.less";
+.confirm_fix {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  z-index: 999;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: rgba(0, 0, 0, .6);
+}
+
+.confirm_container {
+  width: 600rpx;
+  border-radius: 14rpx;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+.confirm_head {
+  position: relative;
+  height: 105rpx;
+
+  .common-background-props();
+}
+
+.confirm_content {
+  position: relative;
+  min-height: 145rpx;
+  padding: 30rpx;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.confirm_foot {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  height: 100rpx;
+}
+
+.confirm_btn {
+  width: 200rpx;
+  height: 60rpx;
+
+  font-size: 25rpx;
+  text-align: center;
+  line-height: 60rpx;
+  color: #a0958b;
+
+  border: 1rpx solid #a0958b;
+  border-radius: 30rpx;
+}
+
+.fll {
+  margin-right: 15rpx;
+}
+</style>

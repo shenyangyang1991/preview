@@ -1,0 +1,21 @@
+<template>
+  <background-image-set :src="shareBackgroundImage"></background-image-set>
+</template>
+
+<script>
+import wepy from 'wepy'
+import BackgroundImageSet from '@/components/BackgroundImageSet'
+import Config from '@/config/index'
+
+export default class Share extends wepy.page {
+  config = {
+    navigationBarTitleText: '句读'
+  }
+  components = {
+    'background-image-set': BackgroundImageSet
+  }
+  data = {
+    shareBackgroundImage: Config.image.shareBackgroundImage
+  }
+}
+</script>

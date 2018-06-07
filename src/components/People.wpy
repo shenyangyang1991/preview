@@ -1,0 +1,87 @@
+<template>
+  <view class="people" style="background-image: url('{{playerBackgroundImage}}');">
+    <view wx:key="unique" wx:for="{{peoples}}" wx:for-index="idx" wx:for-item="item" class="item">
+      <view wx:if="{{idx == 0}}" class="main">
+        房主
+      </view>
+      <view class="face">
+        <image wx:if="{{item.url}}" src="{{item.url}}" class="face_img"></image>
+        <image wx:else style="width: 50rpx; height: 50rpx;" src="{{plusIcon}}" />
+      </view>
+      <view class="name">
+        {{item.name}}
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import Config from '@/config/index'
+
+  export default class People extends wepy.component {
+    props = ['peoples']
+    data = {
+      playerBackgroundImage: Config.image.invitation.playerBackgroundImage,
+      plusIcon: Config.image.invitation.plusIcon
+    }
+  }
+</script>
+
+<style lang="less">
+  @import "../assets/style/base/fn.less";
+  .people {
+    display: flex;
+    justify-content: center;
+    width: 750rpx;
+    height: 366rpx;
+    padding-top: 90rpx;
+    margin: 0 14rpx;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+
+    .item {
+      position: relative;
+      width: 140rpx;
+      margin: 0 10rpx;
+
+      .main {
+        position: absolute;
+        top: -15rpx;
+        left: 30rpx;
+        width: 80rpx;
+        height: 30rpx;
+        .font("medium");
+        font-size: 20rpx;
+        color: #fff;
+        text-align: center;
+        line-height: 30rpx;
+        background-color: #00cf7c;
+        border-radius: 6rpx;
+      }
+
+      .face {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 140rpx;
+        height: 140rpx;
+        border: 5rpx solid #a0a0a0;
+        border-radius: 10rpx;
+      }
+
+      .face_img {
+        width: 130rpx;
+        height: 130rpx;
+      }
+
+      .name {
+        padding-top: 12rpx;
+        .font("medium");
+        font-size: 24rpx;
+        text-align: center;
+        overflow: hidden;
+      }
+    }
+  }
+</style>

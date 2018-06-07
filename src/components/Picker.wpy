@@ -1,0 +1,119 @@
+<template>
+  <view class="picker">
+    <view class="field">{{title}}:</view>
+    <view class="content" @tap.stop="focus">
+      <view class="value">
+        {{value || defaultValue}}
+      </view>
+      <view hidden="{{isShow}}" class="picker_body" style="background-image: url('{{borderImage}}');">
+        <!-- <image class="flag_left"/>
+        <image class="flag_right"/> -->
+        <view class="picker_wrap">
+          <view @tap.stop="select" wx:key="*this" wx:for="{{classes}}" wx:for-index="idx" wx:for-item="item" class="picker_item {{(value || defaultValue) == item ? 'active' : ''}} {{idx == 0 ? 'first' : ''}}">
+            {{item}}
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import Config from '@/config/index'
+
+export default class Picker extends wepy.component {
+  data = {
+    isShow: true,
+    value: '',
+    borderImage: Config.image.invitation.borderImage
+  }
+  props = ['defaultValue', 'classes', 'title']
+  methods = {
+    focus() {
+      this.$emit('globalBlur')
+      this.isShow = false
+      this.$apply()
+    },
+    select() {}
+  }
+  events = {
+    blur: () => {
+      this.isShow = true
+      this.$apply()
+    }
+  }
+}
+</script>
+
+<style lang="less">
+@import "../assets/style/base/fn.less";
+.picker {
+  display: flex;
+  width: 460rpx;
+  height: 72rpx;
+  margin: 8rpx 0;
+
+  border-radius: 34rpx;
+  border: 2rpx solid #dededc;
+  background-color: #f7f7f6;
+
+  .field {
+    width: 210rpx;
+    height: 72rpx;
+    padding-left: 25rpx;
+    font-size: 37rpx;
+    line-height: 72rpx;
+  }
+
+  .content {
+    position: relative;
+    width: 250rpx;
+    height: 72rpx;
+
+    .value {
+      .font("medium");
+      font-size: 37rpx;
+      color: #002871;
+      line-height: 72rpx;
+      text-align: center;
+    }
+
+    .picker_body {
+      position: absolute;
+      z-index: 9;
+      left: 0;
+      top: 50rpx;
+      width: 250rpx;
+      height: 241rpx;
+      padding-top: 14rpx;
+      .common-background-props();
+      .picker_wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 246rpx;
+        height: 224rpx;
+        margin: 0 auto;
+        border-radius: 8rpx;        
+        background-color: #fefefe;
+        overflow: hidden;
+      }
+      .picker_item {
+        position: relative;
+        width: 177rpx;
+        height: 74rpx;
+        .font("medium");
+        font-size: 37rpx;
+        text-align: center;
+        line-height: 74rpx;
+        border-top: 1rpx solid #dfdfdd;
+      }
+
+      .first {
+        border-top: 0;
+      }
+    }
+  }
+}
+</style>

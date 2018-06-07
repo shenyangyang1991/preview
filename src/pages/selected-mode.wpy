@@ -1,0 +1,66 @@
+<template>
+  <background-image-set :src="backgroundImage">
+    <top-nav-container>
+      <top-nav-button title="回到首页" url="/pages/index"/>
+    </top-nav-container>
+    <section padding="80rpx 0 0">
+      <navigator url="{{selMode[0].url}}" hover-class="none">
+        <image class="study_icon"  src="{{study}}"></image>
+      </navigator>
+      <navigator url="{{selMode[1].url}}" hover-class="none">
+        <image class="fight_icon"  src="{{fight}}"></image>
+      </navigator>     
+      <view class="tips" style="background-image: url('{{help}}'); background-repeat: no-repeat;">
+        <view class="p">
+          <view class="p">“练”为练习模式，可自选题库难度，成绩不计入榜单；</view>
+          <view class="p">“战”为随机抽题模式，成绩数据计入榜单。</view>
+        </view>
+      </view>
+    </section>
+  </background-image-set>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import BackgroundImageSet from '@/components/BackgroundImageSet'
+  import Section from '@/components/Section'
+  import TopNavContainer from '@/components/TopNavContainer'
+  import TopNavButton from '@/components/TopNavButton'
+  import Config from '@/config/index'
+  import {connect} from 'wepy-redux'
+
+  @connect({})
+
+  export default class selectedMode extends wepy.page {
+    config = {
+      navigationBarTitleText: '句读'
+    }
+    components = {
+      'background-image-set': BackgroundImageSet,
+      'section': Section,
+      'top-nav-container': TopNavContainer,
+      'top-nav-button': TopNavButton
+    }
+
+    mixins = []
+
+    data = {
+      backgroundImage: Config.image.common.backgroundImageM,
+      study: Config.image.model.study,
+      fight: Config.image.model.fight,
+      help: Config.image.model.help,
+      selMode: [{
+        url: '/pages/selected-question'
+      }, {
+        url: '/pages/games?mode=random'
+      }]
+    }
+
+    methods = {}
+
+    events = {}
+
+    onLoad() {
+    }
+  }
+</script>

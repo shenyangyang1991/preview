@@ -1,0 +1,32 @@
+<template>
+  <view class="top_nav_container" style="width:{{width}}rpx;height:{{height}}rpx;background-image:url('{{background}}');">
+     <slot></slot>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class TopNavContainer extends wepy.component {
+    props = ['width', 'height', 'background']
+  }
+</script>
+
+<style lang="less">
+  @import "../assets/style/base/fn.less";
+
+  .top_nav_container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 44rpx 36rpx;
+
+    .common-background-props();
+  }
+</style>

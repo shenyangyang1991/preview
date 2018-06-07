@@ -1,0 +1,50 @@
+@import "fn";
+
+// 思源黑体
+// .fontSet("bold");
+// .fontSet("light");
+// .fontSet("normal");
+// .fontSet("regular");
+// .fontSet("medium");
+
+
+page {
+  // font-family: "self-normal" !important;
+  font-size: 30rpx;
+  .font("normal");
+  font-style: normal;
+  color: @defaultThemeColor;
+  line-height: 1.6;
+}
+
+page, .page {
+  position: relative;
+  height: 100%;
+}
+
+view, image, navigator, textarea {
+  display: block;
+  box-sizing: border-box;
+}
+
+.button-clear {
+  position: relative;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  line-height: 1;
+  background: transparent;
+
+  &:after {
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+input {
+  height: 72rpx;
+  min-height: 0;
+}

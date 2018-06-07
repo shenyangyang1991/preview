@@ -1,0 +1,109 @@
+<template>
+  <view class="game_screen" style="background-image: url('{{backgroundImage}}');">
+    <scroll-view class="game_wrap" scroll-x scroll-left="{{offsetLeft}}">
+      <view class="games" style="width: {{contentWidth}}rpx;">
+        <view wx:key="unique" wx:for="{{list}}" wx:for-index="idx" wx:for-item="item" class="game_content">
+          <view wx:key="unique" wx:for="{{item}}" wx:for-index="idxc" wx:for-item="child" class="game_item" @tap="answer({{idx}}, {{idxc}})">
+            <view class="game_txt">{{child.txt}}</view>
+            <view class="game_flag game_flag_{{child.flag}}" style="background-image: url('{{child.flag > 0 ? child.flag > 2 ? drawC : child.flag > 1 ? drawB : drawA : ''}}');"></view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import Config from '@/config/index'
+
+export default class GameScreen extends wepy.component {
+  data = {
+    backgroundImage: Config.image.game.gameBackgroundImage,
+    drawA: Config.image.game.selectedIcon,
+    drawB: Config.image.game.errorSelectedIcon,
+    drawC: Config.image.game.errorIcon
+  }
+  methods = {
+    answer(col, unit) {
+      if (this.disabled) return
+      let state = this.list[col][unit].flag
+      if (state === 0) {
+        this.$emit('answer', 'select', col, unit)
+      } else {
+        this.$emit('answer', 'unselect', col, unit)
+      }
+    }
+  }
+  props = ['disabled', 'offsetLeft', 'contentWidth', 'list']
+}
+</script>
+
+<style lang="less">
+@import '../assets/style/base/fn.less';
+
+.game_screen {
+  position: relative;
+  padding: 55rpx;
+  width: 622rpx;
+  height: 970rpx;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+
+  .games {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+  }
+
+  .game_wrap {
+    width: 512rpx;
+    height: 860rpx;
+    -webkit-overflow-scrolling: auto;
+  }
+
+  .game_content {
+    width: 65rpx;
+    height: 860rpx;
+  }
+
+  .game_item {
+    width: 64rpx;
+    height: 86rpx;
+    border-left: 1rpx solid #000;
+  }
+
+  .game_txt {
+    width: 63rpx;
+    height: 50rpx;
+    // .font('regular');
+    font-size: 46rpx;
+    text-align: center;
+    line-height: 50rpx;
+  }
+
+  .game_flag {
+    width: 63rpx;
+    height: 36rpx;
+    
+    background-repeat: no-repeat;
+  }
+
+  .game_flag_2 {
+    background-size: 41rpx 28rpx;
+    background-position: 20rpx 6rpx;
+  }
+
+  .game_flag_1, .game_flag_3 {
+    background-size: 24rpx 24rpx;
+    background-position: 26rpx 6rpx;
+  }
+
+  /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
+  ::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      background-color: transparent;
+  }
+}
+</style>

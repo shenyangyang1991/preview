@@ -1,0 +1,85 @@
+<template>
+  <view class="message">
+    <view wx:if="{{isBadge == 'true'}}" class="badge">new</view>
+    <view class="message_date">
+      {{date}}
+    </view>
+    <view class="message_wrap">
+      <view class="message_title" style="background-image: url('{{bgImage}}');">
+        {{title}}
+      </view>
+      <view class="message_content">
+        {{content}}
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import Config from '@/config/index'
+
+  export default class MessageItem extends wepy.component {
+    props = ['content', 'title', 'date', 'isBadge']
+    data = {
+      bgImage: Config.image.news.msgTitleBackground
+    }
+  }
+</script>
+
+<style lang="less">
+  @import "../assets/style/base/fn.less";
+
+  .message {
+    position: relative;
+    width: 556rpx;
+    margin-top: 30rpx;
+    margin-left: 70rpx;
+
+    .badge {
+      position: absolute;
+      left: -35rpx;
+      top: 12rpx;
+      width: 30rpx;
+      height: 30rpx;
+
+      font-size: 12rpx;
+      text-align: center;
+      line-height: 30rpx;
+      color: #ffffff;
+
+      border-radius: 15rpx;
+      background-color: #d91a00;
+      overflow: hidden;
+    }
+
+    .message_date {
+      padding: 16rpx 0;
+    }
+
+    .message_wrap {
+      position: relative;
+      border: 1rpx solid #dcd5c2;
+      border-radius: 0 0 16rpx 16rpx;
+      overflow: hidden;
+
+      .message_title {
+        width: 556rpx;
+        height: 66rpx;
+        padding-left: 26rpx;
+
+        .font("medium");
+        line-height: 66rpx;
+
+        .common-background-props();
+      }
+
+      .message_content {
+        padding: 24rpx 26rpx;
+        .font("regular");
+        font-size: 24rpx;
+        background-color: #ffffff;
+      }
+    }
+  }
+</style>

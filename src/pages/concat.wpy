@@ -1,0 +1,127 @@
+<template>
+  <background-image-set :src="backgroundImage">
+    <top-nav-container>
+      <top-nav-button title="回到首页" url="/pages/index"/>
+    </top-nav-container>
+    <section padding="0 0 30rpx">
+      <view class="concat_title">请留下您的宝贵意见</view>
+      <form bindsubmit="submit">
+        <textarea wx:if="{{!enabled}}" class="concat_textarea" maxlength="-1" name="content" bindinput="input"></textarea>
+        <view class="concat_textarea" wx:else>
+          {{text}}
+        </view>
+        <button class="button-clear concat_submit" form-type="submit">
+          【 提交 】
+        </button>
+      </form>
+    </section>
+    <alert :content.sync="alertContent" @alertOK.user="goOut" :background.sync="headerBackgroundImage" />
+  </background-image-set>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import BackgroundImageSet from '@/components/BackgroundImageSet'
+  import Alert from '@/components/Alert'
+  import Section from '@/components/Section'
+  import TopNavContainer from '@/components/TopNavContainer'
+  import TopNavButton from '@/components/TopNavButton'
+  import Config from '@/config/index'
+  import http from '@/util/request'
+
+  export default class Concat extends wepy.page {
+    components = {
+      'background-image-set': BackgroundImageSet,
+      'alert': Alert,
+      'section': Section,
+      'top-nav-container': TopNavContainer,
+      'top-nav-button': TopNavButton
+    }
+
+    mixins = []
+
+    data = {
+      backgroundImage: Config.image.common.backgroundImageM,
+      alertContent: [],
+      enabled: false,
+      headerBackgroundImage: Config.image.common.headerBackgroundImage,
+      text: ''
+    }
+
+    lock = false
+
+    end = false
+
+    computed = {}
+
+    cantEdit() {
+      this.enabled = true
+      this.$apply()
+    }
+
+    canEdit() {
+      this.enabled = false
+      this.$apply()
+    }
+
+    methods = {
+      input(evnt) {
+        let value = evnt.detail.value
+        this.text = value
+        this.$apply()
+      },
+      goOut() {
+        if (this.end) {
+          this.end = false
+          wepy.navigateBack()
+        } else this.canEdit()
+      },
+      async submit(evnt) {
+        let {content} = evnt.detail.value
+        if (!content) {
+          // 提示内容必填
+          this.cantEdit()
+          this.alertContent = ['请填写反馈信息']
+          this.$apply()
+          this.$invoke('alert', 'open')
+          return
+        }
+        if (this.lock) return
+        this.lock = true
+        wepy.showLoading({
+          title: '提交中...',
+          mask: true
+        })
+        let data = await http({
+          url: Config.api.advise.url,
+          method: Config.api.advise.method,
+          data: {
+            openid: wepy.getStorageSync('openid'),
+            content
+          }
+        })
+        this.cantEdit()
+        wepy.hideLoading()
+        if (data && data.success) {
+          this.end = true
+          this.alertContent = ['感谢您的反馈！', '我们会努力做得更好！']
+          this.$apply()
+          this.$invoke('alert', 'open')
+        } else if (data && !data.success) {
+          // 提出错误信息
+          this.alertContent = [data.result]
+          this.$apply()
+          this.$invoke('alert', 'open')
+        } else {
+          this.canEdit()
+        }
+        this.lock = false
+      }
+    }
+
+    events = {}
+
+    onLoad() {
+    }
+  }
+</script>

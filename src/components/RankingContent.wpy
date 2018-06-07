@@ -1,0 +1,132 @@
+<template>
+  <view hidden="{{hidden}}" class="ranking_content">
+    <view class="ranking_caption">
+      {{userInfo.userName}}：得分{{userInfo.mark}} 名次{{userInfo.number}}
+    </view>
+    <view class="ranking_table">
+      <view class="table_slider_left"></view>
+      <view class="table_slider_right"></view>
+      <view class="ranking_hd">
+        <view class="col center hd_item">名次</view>
+        <view class="col center hd_item" style="flex: 3;">ID</view>
+        <view class="col center hd_item">得分</view>
+      </view>
+      <scroll-view class="ranking_list" scroll-y>
+        <view wx:key="unique" wx:for="{{list}}" wx:for-index="idx" wx:for-item="item" class="row">
+          <view class="col center item">{{item.rank}}</view>
+          <view class="col left-col" style="flex: 3;">
+            <image class="ranking_user_face" src="{{item.headImgUrl}}" />
+            <view class="ranking_user_name">{{item.userName}}</view>
+          </view>
+          <view class="col center item">{{item.mark}}</view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class RankingContent extends wepy.component {
+    props = ['hidden', 'list', 'userInfo']
+  }
+</script>
+
+<style lang="less">
+  @import "../assets/style/base/fn.less";
+
+  .ranking_content {
+    height: 729rpx;
+
+    .ranking_caption {
+      position: relative;
+      height: 80rpx;
+
+      font-size: 22rpx;
+      line-height: 80rpx;
+      text-align: center;
+
+      border-bottom: 1rpx solid #000000;
+    }
+
+    .ranking_table {
+      position: relative;
+      height: 648rpx;
+
+      .table_slider_left, .table_slider_right {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 1rpx;
+        height: 100%;
+        border-right: 1rpx solid #000000;
+      }
+
+      .table_slider_left {
+        left: 20%;
+      }
+
+      .table_slider_right {
+        right: 20%;
+      }
+
+      .ranking_hd {
+        display: flex;
+        height: 62rpx;
+        border-bottom: 1rpx solid #000000;
+
+        .hd_item {
+          height: 62rpx;
+
+          .font("medium");
+          font-size: 25rpx;
+        }
+      }
+
+      .ranking_list {
+        position: relative;
+        height: 585rpx;
+
+        .row {
+          display: flex;
+          height: 48rpx;
+        }
+
+        .item {
+          .font("medium");
+          font-size: 24rpx;
+        }
+
+        .ranking_user_face {
+          width: 38rpx;
+          height: 38rpx;
+          margin-right: 10rpx;
+          margin-top: 5rpx;
+        }
+
+        .ranking_user_name {
+          .font("medium");
+          font-size: 24rpx;
+        }
+      }
+
+      .col {
+        flex: 1;
+        display: flex;
+      }
+
+      .center {
+        justify-content: center;
+        align-items: center;
+      }
+
+      .left-col {
+        height: 48rpx;
+        padding-left: 20rpx;
+        line-height: 48rpx;
+        overflow: hidden;
+      }
+    }
+  }
+</style>

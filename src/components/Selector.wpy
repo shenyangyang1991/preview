@@ -1,0 +1,46 @@
+<template>
+  <navigator  url="{{url}}" hover-class="none">
+    <view class="selector" style="background-image: url('{{icon}}'); background-repeat: no-repeat;">
+      <view class="title">{{title}}</view>
+      <view class="desc">{{desc}}</view>
+    </view>
+  </navigator>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import Config from '@/config/index'
+
+  export default class Selector extends wepy.component {
+    props = ['title', 'desc', 'url']
+    data = {
+      icon: Config.image.question.classesBackgroundImage
+    }
+  }
+</script>
+
+<style lang="less">
+  @import "../assets/style/base/fn.less";
+
+  .selector {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    width: 455rpx;
+    height: 159rpx;
+    margin: 23rpx 0;
+
+    background-size: 100% 100%;
+
+    .title {
+      .font("medium");
+      font-size: 45rpx;
+    }
+
+    .desc {
+      font-size: 22rpx;
+    }
+  }
+</style>

@@ -1,0 +1,222 @@
+<template>
+  <background-image-set :src="backgroundImage">
+    <view class="games_container" wx:if="{{!isLoading}}">
+      <view class="battle_games_head" style="background-image: url('{{gameHeader}}');">
+        <view class="games_count">
+          剩余句读符号: {{count}}
+        </view>
+        <view class="games_line"></view>
+        <view class="games_time">
+          倒计时: {{time}}s
+        </view>
+      </view>
+      <game-screen :disabled.sync="isTimeout" :offsetLeft.sync="offsetLeft" :contentWidth.sync="contentWidth" :list.sync="list" @answer.user="selectEvt"></game-screen>
+      <view class="games_submit">
+        <view class="games_btn" @tap="presubmit">
+          【 句读毕 】
+        </view>
+        <view class="games_tip">
+          别忘了提交，否则会没有成绩哦
+        </view>
+      </view>
+    </view>
+    <alert :content.sync="alertContent" :background.sync="alertHeadBackground" />
+    <confirm :content.sync="confirmContent" :background.sync="alertHeadBackground" @confirmOk.user="submit" />
+    <image wx:if="{{isLoading}}" class="loading" src="{{loadBackgroundImage}}" />
+  </background-image-set>
+</template>
+
+<script>
+import wepy from 'wepy'
+import BackgroundImageSet from '@/components/ScrollBackgroundImageSet'
+import Alert from '@/components/Alert'
+import Confirm from '@/components/Confirm'
+import GameScreen from '@/components/GameScreen'
+import Config from '@/config/index'
+import http from '@/util/request'
+
+export default class Games extends wepy.page {
+  data = {
+    backgroundImage: Config.image.common.backgroundImageM,
+    gameHeader: Config.image.game.headerBackgroundImage,
+    alertHeadBackground: Config.image.common.alertTitleBackgroundImage,
+    loadBackgroundImage: Config.image.common.loadingBackgroundImage,
+    count: 0,
+    questionId: '',
+    round: 0,
+    content: '',
+    offsetLeft: 0,
+    contentWidth: 0,
+    list: [],
+    answer: [],
+    mode: '',
+    classes: 0,
+    alertContent: [],
+    confirmContent: [],
+    isLoading: true,
+    isTimeout: false,
+    time: 600
+  }
+  components = {
+    'background-image-set': BackgroundImageSet,
+    'alert': Alert,
+    'confirm': Confirm,
+    'game-screen': GameScreen
+  }
+  lock = false
+  async finish() {
+    let endTime = new Date()
+    let result = ''
+    let tmps = this.content.split('')
+    this.answer.sort((a, b) => b - a)
+    this.answer.forEach(index => {
+      tmps.splice(index, 0, 'o')
+    })
+    result = tmps.join('')
+    let param = {}
+    let option = {}
+    let openid = wepy.getStorageSync('openid')
+    param.openid = openid
+    param.round = this.round
+    param.content = result
+    param.id = this.questionId
+    param.useTime = endTime - this.startTime
+    if (this.mode === 'random') {
+      option.url = Config.api.aq.submit.url
+      option.method = Config.api.aq.submit.method
+    } else if (this.mode === 'learn') {
+      param.type = this.classes
+      option.url = Config.api.aqTrain.submit.url
+      option.method = Config.api.aqTrain.submit.method
+    }
+    option.data = param
+    let data = await http(option)
+    if (data && data.success) {
+      let urls = ''
+      if (this.mode === 'learn') {
+        urls = `/pages/games-result?mode=${this.mode}&type=${this.classes}&quesId=${this.questionId}&round=${this.round}`
+      } else if (this.mode === 'random') {
+        urls = `/pages/games-result?mode=${this.mode}&quesId=${this.questionId}&round=${this.round}`
+      }
+      wepy.redirectTo({
+        url: urls
+      })
+    } else if (data && !data.success) {
+      this.alertContent = [data.result]
+      this.$apply()
+      this.$invoke('alert', 'open')
+    }
+    this.lock = false
+  }
+  methods = {
+    presubmit() {
+      if (this.count > 0) {
+        this.confirmContent = ['句读符号剩余', '确定提交吗？']
+        this.$apply()
+        this.$invoke('confirm', 'open')
+        return
+      }
+      if (this.lock) return
+      this.lock = true
+      this.finish()
+    },
+    submit() {
+      if (this.lock) return
+      this.lock = true
+      this.finish()
+    },
+    selectEvt(tp, col, unit) {
+      if (tp === 'select') {
+        if (this.count > 0) {
+          let index = col * 10 + unit + 1
+          this.answer.push(index)
+          this.list[col][unit].flag = 1
+          this.count --
+          this.$apply()
+        } else {
+          this.alertContent = ['剩余符号不足', '去掉一些多余的吧']
+          this.$apply()
+          this.$invoke('alert', 'open')
+        }
+      } else if (tp === 'unselect') {
+        if (this.count < 25) {
+          let index = col * 10 + unit + 1
+          let idx = this.answer.indexOf(index)
+          if (idx > -1) {
+            this.answer.splice(idx, 1)
+          }
+          this.list[col][unit].flag = 0
+          this.count ++
+          this.$apply()
+        }
+      }
+    }
+  }
+  sys = {}
+  startTime = 0
+  parseContent(newValue) {
+    let res = []
+    let tmp = []
+    newValue && newValue.split('').forEach((item, index) => {
+      tmp.push({
+        txt: item,
+        flag: 0
+      })
+      if (index !== 0) {
+        if (index === newValue.length - 1 || index % 10 === 9) {
+          res.push(tmp)
+          tmp = []
+        }
+      }
+    })
+    let contentWidth = res.length > 8 ? res.length * 64 : 512
+    let scrollWidth = contentWidth - 512
+    let radio = this.sys.windowWidth / 750
+    let scrollLeft = radio * scrollWidth
+    this.contentWidth = contentWidth
+    this.list = res
+    this.offsetLeft = scrollLeft
+  }
+  async onLoad(options) {
+    this.sys = wepy.getSystemInfoSync()
+    let {mode} = options
+    let openid = wepy.getStorageSync('openid')
+    let data = null
+    this.mode = mode
+    if (mode === 'random') {
+      // 随机
+      data = await http({
+        url: `${Config.api.aq.get.url}/0/${openid}`,
+        method: Config.api.aq.get.method
+      })
+    } else if (mode === 'learn') {
+      // 练习
+      let {classes} = options
+      this.classes = classes
+      data = await http({
+        url: `${Config.api.aqTrain.question.url}/0/${classes}/${openid}`,
+        method: Config.api.aqTrain.question.method
+      })
+    }
+    if (data && data.success) {
+      let res = data.result
+      this.count = res.answerCount
+      this.questionId = res.quesId
+      this.round = res.round
+      this.content = res.content
+      this.parseContent(res.content)
+      this.isLoading = false
+      this.$apply()
+      this.startTime = new Date()
+    } else if (data && !data.success) {
+      // 错误
+      this.isLoading = false
+      this.$apply()
+      wepy.showModal({
+        content: data.result,
+        showCancel: false
+      })
+    }
+  }
+}
+</script>

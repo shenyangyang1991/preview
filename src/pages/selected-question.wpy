@@ -1,0 +1,67 @@
+<template>
+  <background-image-set :src="BackgroundImageSet">
+    <image class="select_desk" src="{{backgroundImageDesk}}"></image>
+    <top-nav-container>
+      <top-nav-button title="回到首页" url="/pages/index"/>
+    </top-nav-container>
+    <section padding="0 0 240rpx">
+      <repeat for="{{selects}}" key="index" index="index" item="item">
+        <selector :title="item.title" :desc="item.desc" :url="item.url"></selector>
+      </repeat>
+    </section>
+  </background-image-set>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import BackgroundImageSet from '@/components/BackgroundImageSet'
+  import Section from '@/components/Section'
+  import TopNavContainer from '@/components/TopNavContainer'
+  import TopNavButton from '@/components/TopNavButton'
+  import Selector from '@/components/Selector'
+  import Config from '@/config/index'
+  import {connect} from 'wepy-redux'
+
+  @connect({})
+
+  export default class selectedQuestion extends wepy.page {
+    config = {
+      navigationBarTitleText: '句读'
+    }
+    components = {
+      'background-image-set': BackgroundImageSet,
+      'section': Section,
+      'top-nav-container': TopNavContainer,
+      'top-nav-button': TopNavButton,
+      'selector': Selector
+    }
+
+    mixins = []
+
+    data = {
+      selects: [{
+        title: '温故知新',
+        desc: '你曾学过的经典名篇',
+        url: '/pages/games?mode=learn&classes=1'
+      }, {
+        title: '初露锋芒',
+        desc: '句读进阶的必经之路',
+        url: '/pages/games?mode=learn&classes=2'
+      }, {
+        title: '学海无涯',
+        desc: '古文圣手们的终极挑战',
+        url: '/pages/games?mode=learn&classes=3'
+      }],
+      BackgroundImageSet: Config.image.common.backgroundImageM,
+      backgroundImageDesk: Config.image.question.bottomBackgroundImage
+    }
+
+    computed = {}
+
+    methods = {}
+
+    events = {}
+
+    onLoad() { }
+  }
+</script>

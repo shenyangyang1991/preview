@@ -1,0 +1,216 @@
+<template>
+  <background-image-set :src="backgroundImage">
+    <view class="games_result" wx:if="{{!isLoading}}">
+      <view class="games_header">
+        正确率：
+        <view class="games_field">{{result.rightRate}}%</view>
+        正确数：
+        <view class="games_field">{{result.rightCount}}</view>
+      </view>
+      <game-screen disabled :offsetLeft.sync="offsetLeft" :contentWidth.sync="contentWidth" :list.sync="list"></game-screen>
+      <view class="games_from">
+        {{result.source}}
+      </view>
+      <view class="games_btn_group">
+        <view class="games_btn jl" @tap="next">
+          【 下一题 】
+        </view>
+        <view class="games_btn" @tap="getScore">
+          【 我的成绩单 】
+        </view>
+      </view>
+    </view>
+    <image wx:if="{{isLoading}}" class="loading" src="{{loadBackgroundImage}}" />
+  </background-image-set>
+</template>
+
+<script>
+import wepy from 'wepy'
+import BackgroundImageSet from '@/components/ScrollBackgroundImageSet'
+import GameScreen from '@/components/GameScreen'
+import Config from '@/config/index'
+import http from '@/util/request'
+
+export default class GamesResult extends wepy.page {
+  components = {
+    'background-image-set': BackgroundImageSet,
+    'game-screen': GameScreen
+  }
+
+  data = {
+    backgroundImage: Config.image.common.backgroundImageM,
+    loadBackgroundImage: Config.image.common.loadingBackgroundImage,
+    result: {},
+    list: [],
+    content: '',
+    offsetLeft: 0,
+    contentWidth: 0,
+    mode: '',
+    classes: '',
+    type: '',
+    round: '',
+    isLoading: true
+  }
+
+  methods = {
+    next() {
+      if (this.mode === 'learn') {
+        wepy.redirectTo({
+          url: `/pages/games?mode=${this.mode}&classes=${this.classes}`
+        })
+      } else if (this.mode === 'random') {
+        wepy.redirectTo({
+          url: `/pages/games?mode=${this.mode}`
+        })
+      }
+    },
+    getScore() {
+      if (this.mode === 'learn') {
+        wepy.navigateTo({
+          url: `/pages/personResult?type=${this.type}&round=${this.round}`
+        })
+      } else if (this.mode === 'random') {
+        wepy.navigateTo({
+          url: `/pages/warResult?round=${this.round}`
+        })
+      }
+    }
+  }
+  parseContent(newValue) {
+    let res = []
+    let tmp = []
+    let realContent = []
+    let realIndex = -1
+    let len = -1
+    let maps = new Map()
+    newValue && newValue.split('').forEach((item, index) => {
+      if (item === 'o') {
+        maps.set(index, len)
+        return
+      }
+      ++len
+    })
+    newValue && newValue.split('').forEach((item, index) => {
+      if (item === 'o') {
+        return
+      }
+      ++realIndex
+      tmp.push({
+        txt: item,
+        flag: 0
+      })
+      realContent.push(item)
+      if (realIndex !== 0) {
+        if (realIndex === len || realIndex % 10 === 9) {
+          res.push(tmp)
+          tmp = []
+        }
+      }
+    })
+    realContent = realContent.join('')
+    let less = this.result.lessStr || ''
+    let extra = this.result.extraStr || ''
+    let right = this.result.rightStr || ''
+    less && less.split(',').forEach(item => {
+      if (!item) return
+      let idxn = parseInt(item)
+      let realIndex = maps.get(idxn)
+      let col = parseInt(realIndex / 10)
+      let unit = realIndex % 10
+      try {
+        res[col][unit].flag = 3
+      } catch (e) {
+        // console.log(res)
+      }
+    })
+    extra && extra.split(',').forEach(item => {
+      if (!item) return
+      let idxn = parseInt(item)
+      let realIndex = maps.get(idxn)
+      let col = parseInt(realIndex / 10)
+      let unit = realIndex % 10
+      try {
+        res[col][unit].flag = 2
+      } catch (e) {
+        // console.log(res)
+      }
+    })
+    right && right.split(',').forEach(item => {
+      if (!item) return
+      let idxn = parseInt(item)
+      let realIndex = maps.get(idxn)
+      let col = parseInt(realIndex / 10)
+      let unit = realIndex % 10
+      try {
+        res[col][unit].flag = 1
+      } catch (e) {
+        // console.log(res)
+      }
+    })
+    let contentWidth = res.length > 8 ? res.length * 64 : 512
+    let scrollWidth = contentWidth - 512
+    let radio = this.sys.windowWidth / 750
+    let scrollLeft = radio * scrollWidth
+    this.contentWidth = contentWidth
+    this.list = res
+    this.offsetLeft = scrollLeft
+  }
+  sys = {}
+  async onLoad(options) {
+    this.sys = wepy.getSystemInfoSync()
+    let {mode} = options
+    let openid = wepy.getStorageSync('openid')
+    if (mode === 'learn') {
+      let {type, round, quesId} = options
+      let data = await http({
+        url: `${Config.api.aqTrain.result.url}/${round}/${type}/${quesId}/${openid}`,
+        method: Config.api.aqTrain.result.method
+      })
+      if (data && data.success) {
+        let res = data.result
+        this.result = res
+        this.content = res.content
+        this.mode = mode
+        this.classes = type
+        this.type = type
+        this.round = round
+        this.parseContent(res.content)
+        this.isLoading = false
+        this.$apply()
+      } else if (data && !data.success) {
+        this.isLoading = false
+        this.$apply()
+        // 提出错误信息
+        wepy.showModal({
+          content: data.result,
+          showCancel: false
+        })
+      }
+    } else if (mode === 'random') {
+      let {round, quesId} = options
+      let data = await http({
+        url: `${Config.api.aq.result.url}/${round}/${quesId}/${openid}`,
+        method: Config.api.aqTrain.result.method
+      })
+      if (data && data.success) {
+        let res = data.result
+        this.result = res
+        this.content = res.content
+        this.mode = mode
+        this.round = round
+        this.parseContent(res.content)
+        this.isLoading = false
+        this.$apply()
+      } else if (data && !data.success) {
+        this.isLoading = false
+        this.$apply()
+        // 提出错误信息
+        wepy.showModal({
+          content: data.result,
+          showCancel: false
+        })
+      }
+    }
+  }
+}
+</script>
