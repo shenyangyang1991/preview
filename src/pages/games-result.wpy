@@ -199,17 +199,18 @@ export default class GamesResult extends wepy.page {
         this.mode = mode
         this.round = round
         this.parseContent(res.content)
-        this.isLoading = false
         this.$apply()
       } else if (data && !data.success) {
-        this.isLoading = false
-        this.$apply()
         // 提出错误信息
         wepy.showModal({
           content: data.result,
           showCancel: false
         })
       }
+      setTimeout(() => {
+        this.isLoading = false
+        this.$apply()
+      }, 800)
     }
   }
 }

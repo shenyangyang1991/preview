@@ -23,7 +23,7 @@
           点击右上角分享给小伙伴们炫耀一下！
         </view> -->
         <button class="button-clear submit" form-type="submit" @tap="next">
-            【 再战一回 】
+            【 返回题库 】
         </button>
       </view>
     </section>   
@@ -68,7 +68,7 @@
     methods = {
       next() {
         wepy.navigateTo({
-          url: `/pages/games?mode=learn&classes=${this.classes}`
+          url: `/pages/selected-question`
         })
       }
     }

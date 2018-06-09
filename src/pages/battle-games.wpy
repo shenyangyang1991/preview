@@ -12,16 +12,19 @@
       </view>
       <game-screen :disabled.sync="isTimeout" :offsetLeft.sync="offsetLeft" :contentWidth.sync="contentWidth" :list.sync="list" @answer.user="selectEvt"></game-screen>
       <view class="games_submit">
-        <view class="games_btn" @tap="presubmit">
-          【 句读毕 】
-        </view>
-        <view class="games_tip">
-          别忘了提交，否则会没有成绩哦
+        <view class="games_submit_group">
+          <view class="games_btn" @tap="next">
+            【 继续答题 】
+          </view>
+          <view class="games_btn" @tap="presubmit">
+            【 退出对战 】
+          </view>
         </view>
       </view>
     </view>
     <alert :content.sync="alertContent" :background.sync="alertHeadBackground" />
-    <confirm :content.sync="confirmContent" :background.sync="alertHeadBackground" @confirmOk.user="submit" />
+    <n-confirm :content.sync="confirmContent" :background.sync="alertHeadBackground" @confirmOk.user="nextSubmit" />
+    <q-confirm :content.sync="confirmContent" :background.sync="alertHeadBackground" @confirmOk.user="submit" @confirmCancel.user="quit" />
     <image wx:if="{{isLoading}}" class="loading" src="{{loadBackgroundImage}}" />
   </background-image-set>
 </template>
@@ -34,8 +37,10 @@ import Confirm from '@/components/Confirm'
 import GameScreen from '@/components/GameScreen'
 import Config from '@/config/index'
 import http from '@/util/request'
+import socketMixin from '@/mixins/socket'
 
 export default class Games extends wepy.page {
+  mixins = [socketMixin]
   data = {
     backgroundImage: Config.image.common.backgroundImageM,
     gameHeader: Config.image.game.headerBackgroundImage,
@@ -49,111 +54,23 @@ export default class Games extends wepy.page {
     contentWidth: 0,
     list: [],
     answer: [],
-    mode: '',
     classes: 0,
     alertContent: [],
     confirmContent: [],
     isLoading: true,
     isTimeout: false,
-    time: 600
-  }
-  components = {
-    'background-image-set': BackgroundImageSet,
-    'alert': Alert,
-    'confirm': Confirm,
-    'game-screen': GameScreen
-  }
-  lock = false
-  async finish() {
-    let endTime = new Date()
-    let result = ''
-    let tmps = this.content.split('')
-    this.answer.sort((a, b) => b - a)
-    this.answer.forEach(index => {
-      tmps.splice(index, 0, 'o')
-    })
-    result = tmps.join('')
-    let param = {}
-    let option = {}
-    let openid = wepy.getStorageSync('openid')
-    param.openid = openid
-    param.round = this.round
-    param.content = result
-    param.id = this.questionId
-    param.useTime = endTime - this.startTime
-    if (this.mode === 'random') {
-      option.url = Config.api.aq.submit.url
-      option.method = Config.api.aq.submit.method
-    } else if (this.mode === 'learn') {
-      param.type = this.classes
-      option.url = Config.api.aqTrain.submit.url
-      option.method = Config.api.aqTrain.submit.method
-    }
-    option.data = param
-    let data = await http(option)
-    if (data && data.success) {
-      let urls = ''
-      if (this.mode === 'learn') {
-        urls = `/pages/games-result?mode=${this.mode}&type=${this.classes}&quesId=${this.questionId}&round=${this.round}`
-      } else if (this.mode === 'random') {
-        urls = `/pages/games-result?mode=${this.mode}&quesId=${this.questionId}&round=${this.round}`
-      }
-      wepy.redirectTo({
-        url: urls
-      })
-    } else if (data && !data.success) {
-      this.alertContent = [data.result]
-      this.$apply()
-      this.$invoke('alert', 'open')
-    }
-    this.lock = false
-  }
-  methods = {
-    presubmit() {
-      if (this.count > 0) {
-        this.confirmContent = ['句读符号剩余', '确定提交吗？']
-        this.$apply()
-        this.$invoke('confirm', 'open')
-        return
-      }
-      if (this.lock) return
-      this.lock = true
-      this.finish()
-    },
-    submit() {
-      if (this.lock) return
-      this.lock = true
-      this.finish()
-    },
-    selectEvt(tp, col, unit) {
-      if (tp === 'select') {
-        if (this.count > 0) {
-          let index = col * 10 + unit + 1
-          this.answer.push(index)
-          this.list[col][unit].flag = 1
-          this.count --
-          this.$apply()
-        } else {
-          this.alertContent = ['剩余符号不足', '去掉一些多余的吧']
-          this.$apply()
-          this.$invoke('alert', 'open')
-        }
-      } else if (tp === 'unselect') {
-        if (this.count < 25) {
-          let index = col * 10 + unit + 1
-          let idx = this.answer.indexOf(index)
-          if (idx > -1) {
-            this.answer.splice(idx, 1)
-          }
-          this.list[col][unit].flag = 0
-          this.count ++
-          this.$apply()
-        }
-      }
-    }
+    time: 0,
+    fightId: '',
+    openid: '',
+    peoples: [{}, {}, {}, {}],
+    currPeople: {},
+    timeVal: '',
+    quesVal: '',
+    quesIndex: 0,
+    timeIndex: 0
   }
   sys = {}
-  startTime = 0
+  isGood = false
   parseContent(newValue) {
     let res = []
     let tmp = []
@@ -177,27 +94,225 @@ export default class Games extends wepy.page {
     this.list = res
     this.offsetLeft = scrollLeft
   }
-  async onLoad(options) {
-    this.sys = wepy.getSystemInfoSync()
-    let {mode} = options
-    let openid = wepy.getStorageSync('openid')
-    let data = null
-    this.mode = mode
-    if (mode === 'random') {
-      // 随机
-      data = await http({
-        url: `${Config.api.aq.get.url}/0/${openid}`,
-        method: Config.api.aq.get.method
-      })
-    } else if (mode === 'learn') {
-      // 练习
-      let {classes} = options
-      this.classes = classes
-      data = await http({
-        url: `${Config.api.aqTrain.question.url}/0/${classes}/${openid}`,
-        method: Config.api.aqTrain.question.method
-      })
+  timer = null
+  startTime = 0
+  components = {
+    'background-image-set': BackgroundImageSet,
+    'alert': Alert,
+    'n-confirm': Confirm,
+    'q-confirm': Confirm,
+    'game-screen': GameScreen
+  }
+  updatePeople(peoples) {
+    let pp = peoples || []
+    this.peoples = [{}, {}, {}, {}]
+    pp.forEach((item, index) => {
+      this.peoples[index] = item
+    })
+    this.$apply()
+  }
+  getCurrPeople(openid) {
+    let people = this.peoples.filter(item => item.openId === openid)
+    if (people && people[0]) {
+      this.currPeople = people[0]
+      this.$apply()
     }
+  }
+  async finish(cb) {
+    let result = ''
+    let tmps = this.content.split('')
+    this.answer.sort((a, b) => b - a)
+    this.answer.forEach(index => {
+      tmps.splice(index, 0, 'o')
+    })
+    result = tmps.join('')
+    let param = {}
+    let option = {}
+    let endTime = new Date()
+    param.openid = this.openid
+    param.round = this.round
+    param.content = result
+    param.id = this.questionId
+    param.fightId = this.fightId
+    let csTime = parseInt((endTime - this.startTime) / 1000) || 0
+    param.useTime = csTime
+    param.type = this.classes
+    option.url = Config.api.battle.submit.url
+    option.method = Config.api.battle.submit.method
+    option.data = param
+    let data = await http(option)
+    if (data && data.success) {
+      let brs = await http({
+        url: `${Config.api.battle.result.url}/${this.fightId}/${this.round}/${this.classes}/${this.questionId}/${this.openid}`,
+        method: Config.api.battle.result.method
+      })
+      if (brs && brs.success) {
+        cb && cb()
+      } else if (brs && !brs.success) {
+        this.alertContent = [brs.result]
+        this.$apply()
+        this.$invoke('alert', 'open')
+      }
+    } else if (data && !data.success) {
+      this.alertContent = [data.result]
+      this.$apply()
+      this.$invoke('alert', 'open')
+    }
+  }
+  done() {
+    this.isGood = true
+    this.confirmContent = ['您是否提交本题已选答案？']
+    this.$apply()
+    this.$invoke('q-confirm', 'open')
+  }
+  exits(is) {
+    this.finish(() => {
+      if (is) {
+        this.isExit = false
+        this.isGameOver = true
+      } else {
+        this.isExit = true
+        this.isGameOver = false
+      }
+      let urls = `/pages/battle-result?fightId=${this.fightId}&round=${this.round}&type=${this.classes}`
+      wepy.redirectTo({
+        url: urls
+      })
+    })
+  }
+  nextAndSubmit() {
+    this.finish(async () => {
+      this.isLoading = true
+      this.$apply()
+      let data = await http({
+        url: `${Config.api.battle.get.url}/${this.fightId}/0/${this.classes}/${this.openid}`,
+        method: Config.api.battle.get.method
+      })
+      if (data && data.success) {
+        let res = data.result
+        this.answer = []
+        this.count = res.answerCount
+        this.questionId = res.quesId
+        this.round = res.round
+        this.content = res.content
+        this.parseContent(res.content)
+        this.$apply()
+        this.startTime = new Date()
+      } else if (data && !data.success) {
+        // 错误
+        this.alertContent = [data.result]
+        this.$apply()
+        this.$invoke('alert', 'open')
+      }
+      setTimeout(() => {
+        this.isLoading = false
+        this.$apply()
+      }, 800)
+    })
+  }
+  methods = {
+    next() {
+      if (this.count > 0) {
+        this.confirmContent = ['句读符号剩余', '确定提交吗？']
+        this.$apply()
+        this.$invoke('n-confirm', 'open')
+        return
+      }
+      this.nextAndSubmit()
+    },
+    nextSubmit() {
+      this.nextAndSubmit()
+    },
+    presubmit() {
+      this.isGood = false
+      this.confirmContent = ['您是否提交本题已选答案？']
+      this.$apply()
+      this.$invoke('q-confirm', 'open')
+    },
+    submit() {
+      if (this.isGood) {
+        this.exits(true)
+      } else {
+        this.exits(false)
+      }
+      this.isGood = false
+    },
+    quit() {
+      if (this.isGood) {
+        this.isExit = false
+        this.isGameOver = true
+      } else {
+        this.isExit = true
+        this.isGameOver = false
+      }
+      let urls = `/pages/battle-result?fightId=${this.fightId}&round=${this.round}&type=${this.classes}`
+      wepy.redirectTo({
+        url: urls
+      })
+    },
+    selectEvt(tp, col, unit) {
+      if (tp === 'select') {
+        if (this.count > 0) {
+          let index = col * 10 + unit + 1
+          this.answer.push(index)
+          this.list[col][unit].flag = 1
+          this.count --
+          this.$apply()
+        } else {
+          this.alertContent = ['剩余符号不足', '去掉一些多余的吧']
+          this.$apply()
+          this.$invoke('alert', 'open')
+        }
+      } else if (tp === 'unselect') {
+        let index = col * 10 + unit + 1
+        let idx = this.answer.indexOf(index)
+        if (idx > -1) {
+          this.answer.splice(idx, 1)
+        }
+        this.list[col][unit].flag = 0
+        this.count ++
+        this.$apply()
+      }
+    }
+  }
+  timeControll() {
+    this.timer = setInterval(() => {
+      if (this.time <= 0) {
+        clearInterval(this.timer)
+        this.isTimeout = true
+        this.$apply()
+        this.done()
+        return
+      }
+      this.time --
+      this.$apply()
+    }, 1000)
+  }
+  onUnload() {
+    if (this.timer) clearInterval(this.timer)
+  }
+  async onLoad(options) {
+    let {classes, fightId, times, name, id, headImgUrl} = options
+    this.sys = wepy.getSystemInfoSync()
+    let openid = wepy.getStorageSync('openid')
+    this.classes = classes
+    this.fightId = fightId
+    this.openid = openid
+    this.timeVal = times
+    this.quesVal = classes
+    this.updatePeople([{
+      id,
+      name,
+      headImgUrl,
+      openId: openid,
+      ower: '00'
+    }])
+    this.getCurrPeople(openid)
+    let data = null
+    data = await http({
+      url: `${Config.api.battle.get.url}/${fightId}/0/${classes}/${openid}`,
+      method: Config.api.battle.get.method
+    })
     if (data && data.success) {
       let res = data.result
       this.count = res.answerCount
@@ -205,18 +320,20 @@ export default class Games extends wepy.page {
       this.round = res.round
       this.content = res.content
       this.parseContent(res.content)
-      this.isLoading = false
+      this.time = parseInt(times) * 60 || 300
       this.$apply()
       this.startTime = new Date()
+      this.timeControll()
     } else if (data && !data.success) {
       // 错误
+      this.alertContent = [data.result]
+      this.$apply()
+      this.$invoke('alert', 'open')
+    }
+    setTimeout(() => {
       this.isLoading = false
       this.$apply()
-      wepy.showModal({
-        content: data.result,
-        showCancel: false
-      })
-    }
+    }, 800)
   }
 }
 </script>

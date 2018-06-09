@@ -66,5 +66,43 @@ export default {
   roundResult: {
     url: '/pages/round/form/roundResult',
     method: 'get'
+  },
+  battle: {
+    create: {
+      url: '/pages/fight/form/add',
+      method: 'post'
+    },
+    join: {
+      url: '/pages/fight/form/join',
+      method: 'post'
+    },
+    quit: {
+      url: '/pages/fight/form/exit',
+      method: 'post'
+    },
+    start: {
+      url: '/pages/fight/form/start',
+      method: 'post'
+    },
+    get: {
+      url: '/pages/aqFight/form/list',
+      method: 'get'
+    },
+    submit: {
+      url: '/pages/aqFight/form/submit',
+      method: 'post'
+    },
+    end: {
+      url: '/pages/fight/form/end',
+      method: 'post'
+    },
+    result: {
+      url: '/pages/aqFight/form/result',
+      method: 'get'
+    },
+    tresult: {
+      url: '/pages/roundFight/form/roundResult',
+      method: 'get'
+    }
   }
 }

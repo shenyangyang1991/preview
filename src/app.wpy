@@ -28,7 +28,8 @@ export default class extends wepy.app {
       'pages/warResult',
       'pages/auth',
       'pages/battle-invite',
-      'pages/battle-games'
+      'pages/battle-games',
+      'pages/battle-result'
     ],
     window: {
       backgroundTextStyle: 'light',

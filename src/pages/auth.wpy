@@ -26,7 +26,9 @@ import Config from '@/config/index'
 export default class Auth extends wepy.page {
   data = {
     backgroundImage: Config.image.common.backgroundImageS,
-    authLogo: Config.image.authLogo
+    authLogo: Config.image.authLogo,
+    isHome: true,
+    fightId: ''
   }
   components = {
     'background-image-set': BackgroundImageSet,
@@ -37,12 +39,30 @@ export default class Auth extends wepy.page {
     let sets = await wepy.getSetting()
     if (sets.authSetting['scope.userInfo']) {
       clearInterval(this.timer)
-      wepy.reLaunch({
-        url: '/pages/index'
-      })
+      if (this.isHome) {
+        wepy.reLaunch({
+          url: '/pages/index'
+        })
+      } else {
+        if (this.fightId) {
+          wepy.reLaunch({
+            url: `/pages/battle-invite?fightId=${this.fightId}`
+          })
+        } else {
+          wepy.reLaunch({
+            url: `/pages/battle-invite`
+          })
+        }
+      }
     }
   }
-  onLoad() {
+  onLoad(options) {
+    let {fightId, isHome} = options
+    if (!isHome) {
+      this.isHome = false
+      this.fightId = fightId
+      this.$apply()
+    }
     this.timer = setInterval(() => {
       this.authorizeInfo()
     }, 800)

@@ -1,0 +1,106 @@
+<template>
+  <background-image-set :src="image.backgroundImage">
+    <section>
+      <view wx:if="{{result.exit == 'normal'}}" class="position_name">第{{result.rank}}名</view>
+      <view wx:else class="position_name">您已逃跑</view>
+      <view class="result_cn" style="background-image: url('{{resultBackgroundImage}}');">
+        <view class="p">您共句读{{result.wordCount}}字  </view>
+        <view class="p">总用时：{{result.useTime}}</view>
+        <view class="p">累计正确句读：{{result.rightCount}} </view>
+        <view class="p">累计正确率：{{result.rightRate}}%</view>
+      </view>
+      <view wx:if="{{result.exit == 'normal'}}" class="score" style="background-image: url('{{battleResultBackground}}');">
+        <view class="score_head">
+          得分: {{result.mark}}
+        </view>
+        <view class="score_body">
+          <view class="score_line_left"></view>
+          <view class="score_line_right"></view>
+          <view class="row row-head">
+            <view class="col">名次</view>
+            <view class="col-3">ID</view>
+            <view class="col">得分</view>
+          </view>
+          <view wx:key="unique" wx:for="{{result.rankList}}" wx:for-index="idx" wx:for-item="item" class="row row-body">
+            <view class="col">{{item.rank}}</view>
+            <view class="col-3 nick-wrap">
+              <image src="{{item.headImgUrl}}" class="nickname"/>
+              <view class="names">{{item.userName}}</view>
+            </view>
+            <view class="col">{{item.mark}}</view>
+          </view>
+        </view>
+      </view>
+      <view class="result_submit">
+        <view class="result_btn" @tap="goHome">
+          【 回到首页 】
+        </view>
+        <view class="result_btn" @tap="next">
+          【 再战一回 】
+        </view>
+        <!-- <view class="result_tip">
+          实时对战荣誉榜
+        </view> -->
+      </view>
+    </section>
+  </background-image-set>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import BackgroundImage from '@/components/BackgroundImageSet'
+  import Section from '@/components/Section'
+  import Config from '@/config/index'
+  import http from '@/util/request'
+
+  export default class battleInvite extends wepy.page {
+    components = {
+      'background-image-set': BackgroundImage,
+      'section': Section
+    }
+
+    mixins = []
+
+    data = {
+      resultBackgroundImage: Config.image.result.resultBackgroundImage,
+      battleResultBackground: Config.image.result.battleResultBackground,
+      result: {}
+    }
+
+    computed = {}
+
+    methods = {
+      next() {
+        wepy.navigateTo({
+          url: '/pages/battle-invite'
+        })
+      },
+      goHome() {
+        wepy.reLaunch({
+          url: '/pages/index'
+        })
+      }
+    }
+
+    events = {}
+
+    async onLoad(options) {
+      let openid = wepy.getStorageSync('openid')
+      let {fightId, round, type} = options
+      let data = await http({
+        url: `${Config.api.battle.tresult.url}/${fightId}/${round}/${type}/${openid}`,
+        method: Config.api.battle.tresult.method
+      })
+      if (data && data.success) {
+        let res = data.result
+        this.result = res
+        this.$apply()
+      } else if (data && !data.success) {
+        wepy.showModal({
+          content: data.result,
+          showCancel: false
+        })
+      }
+    }
+  }
+</script>

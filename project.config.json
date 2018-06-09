@@ -28,7 +28,7 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": 9,
+			"current": 8,
 			"list": [
 				{
 					"id": -1,
@@ -79,7 +79,7 @@
 					"query": ""
 				},
 				{
-					"id": -1,
+					"id": 8,
 					"name": "invite",
 					"pathName": "pages/battle-invite",
 					"query": ""
@@ -87,7 +87,14 @@
 				{
 					"id": -1,
 					"name": "ba",
-					"pathName": "pages/battle-games"
+					"pathName": "pages/battle-games",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "res",
+					"pathName": "pages/battle-result",
+					"query": ""
 				}
 			]
 		}

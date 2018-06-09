@@ -26,7 +26,7 @@ export default async function request(options) {
       if (isSuccess === 'true') {
         return {success: true, result: obj}
       } else {
-        return {success: false, result: msg}
+        return {success: false, result: msg, obj: obj}
       }
     }
   } else if (response.statusCode === 404) {

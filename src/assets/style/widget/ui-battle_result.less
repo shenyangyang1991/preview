@@ -1,0 +1,130 @@
+@import "../base/fn.less";
+
+.position_name {
+  .font("medium");
+  font-size: 65rpx;
+}
+.result_cn {
+  width: 550rpx;
+  height: 324rpx;
+  padding: 60rpx 50rpx;
+  margin-top: 30rpx;
+
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+
+  .p {
+    font-size: 35rpx;
+    line-height: 50rpx;
+  }
+}
+.result_submit {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40rpx;
+
+  .result_btn {
+    width: 300rpx;
+    height: 90rpx;
+    margin: 0 5rpx;
+    .font("medium");
+    font-size: 37rpx;
+    text-align: center;
+    line-height: 90rpx;
+    border: 1rpx solid #78685a;
+    border-radius: 15rpx;
+    background-color: #fff;
+  }
+
+  .result_tip {
+    padding-top: 20rpx;
+    .font("light");
+    font-size: 25rpx;
+    text-align: center;
+  }
+}
+.score {
+  width: 550rpx;
+  height: 499rpx;
+  margin-top: 60rpx;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+
+  .score_head {
+    width: 390rpx;
+    height: 126rpx;
+    margin: 0 auto;
+
+    .font("medium");
+    font-size: 45rpx;
+    color: #ae0e16;
+    text-align: center;
+    line-height: 95rpx;
+  }
+
+  .score_body {
+    position: relative;
+    width: 550rpx;
+    height: 373rpx;
+    padding: 15rpx 10rpx 10rpx;
+    
+    .row-head {
+      position: relative;
+      height: 62rpx;
+
+      font-size: 25rpx;
+      border-bottom: 1rpx solid #000;
+    }
+
+    .row-body {
+      position: relative;
+      height: 40rpx;
+      margin-top: 20rpx;
+      font-size: 24rpx;
+    }
+
+    .nickname {
+      width: 40rpx;
+      height: 40rpx;
+      margin-left: 10rpx;
+      margin-right: 12rpx;
+    }
+
+    .nick-wrap {
+      display: flex;
+      align-items: center;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+    }
+    .col {
+      flex: 1;
+      text-align: center;
+    }
+    .col-3 {
+      flex: 3;
+      text-align: center;
+    }
+    .score_line_left {
+      position: absolute;
+      left: 20%;
+      top: 0;
+      z-index: 2;
+      width: 1rpx;
+      height: 358rpx;
+      border-right: 1rpx solid #000;
+    }
+    .score_line_right {
+      position: absolute;
+      right: 20%;
+      top: 0;
+      z-index: 2;
+      width: 1rpx;
+      height: 358rpx;
+      border-left: 1rpx solid #000;
+    }
+  }
+}

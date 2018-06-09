@@ -1,16 +1,19 @@
 <template>
   <background-image-set :src="backgroundImage">
-    <view class="full-container" @tap="globelBlur">
-      <section>
+    <view wx:if="{{!isLoading}}" class="full-container" @tap="globelBlur">
+      <section padding="20px 0">
         <view class="invite_tt" style="background-image: url('{{inviteHeader}}');">邀请好友</view>
-        <people :peoples="peoples"></people>
+        <people :peoples.sync="peoples"></people>
         <view class="invite_select">
-          <tpicker title="选择题库" :classes="question" :defaultValue="firstQues"></tpicker>
-          <dpicker title="选择时间"></dpicker>
+          <tpicker :user.sync="currPeople" title="选择题库" @select.user="quesSele" :classes.sync="questions" :defaultValue.sync="firstQues"></tpicker>
+          <dpicker :user.sync="currPeople" title="选择时间" @select.user="timeSele" :classes.sync="times" :defaultValue.sync="firstTime"></dpicker>
         </view>
         <view class="invite_join">
-            <view class="invite_start">
+            <view wx:if="{{currPeople.ower == '01'}}" class="invite_start" @tap="startGames">
               【 开始 】
+            </view>
+            <view style="margin-top: 10rpx;" class="invite_start" @tap="exitGames">
+              【 退出 】
             </view>
             <view class="text_tips">
               <view class="text_field">
@@ -30,55 +33,200 @@
           </view>
       </section>
     </view>
+    <alert :content.sync="alertContent" @alertOK.user="goOut" :background.sync="alertBackground" />
   </background-image-set>
 </template>
 
 <script>
 import wepy from 'wepy'
 import initMixin from '@/mixins/init'
+import socketMixin from '@/mixins/socket'
 import BackgroundImageSet from '@/components/BackgroundImageSet'
+import Alert from '@/components/Alert'
 import Section from '@/components/Section'
 import People from '@/components/People'
 import Picker from '@/components/Picker'
+import http from '@/util/request'
 import Config from '@/config/index'
 
 export default class BattleInvite extends wepy.page {
+  onShareAppMessage() {
+    return {
+      title: '学识何如观点书，敢一战否？',
+      path: `/pages/battle-invite?fightId=${this.fightId}`
+      // imageUrl: Config.image.sharePreview
+    }
+  }
   components = {
     'background-image-set': BackgroundImageSet,
+    'alert': Alert,
     'section': Section,
     'people': People,
     'tpicker': Picker,
     'dpicker': Picker
   }
-  methods = {
-    globelBlur() {
-      this.$broadcast('blur')
+  computed = {
+    firstQues() {
+      let ques = this.questions[this.quesIndex] || {}
+      return ques.key
+    },
+    firstTime() {
+      let time = this.times[this.timeIndex] || {}
+      return time.key
+    },
+    quesVal() {
+      let ques = this.questions[this.quesIndex] || {}
+      return ques.val
+    },
+    timeVal() {
+      let time = this.times[this.timeIndex] || {}
+      return time.val
     }
   }
-  mixins = [initMixin]
+  methods = {
+    goOut() {
+      if (!this.isGoOut) {
+        this.isGoOut = true
+        return
+      }
+      wepy.reLaunch({
+        url: '/pages/index'
+      })
+    },
+    globelBlur() {
+      this.$broadcast('blur')
+    },
+    quesSele(index) {
+      this.quesIndex = index
+      this.$apply()
+      this.updateBattleContent()
+    },
+    timeSele(index) {
+      this.timeIndex = index
+      this.$apply()
+      this.updateBattleContent()
+    },
+    exitGames() {
+      wepy.reLaunch({
+        url: '/pages/index'
+      })
+    },
+    async startGames() {
+      let who = 0
+      this.peoples.forEach(item => {
+        if (item.openId) {
+          ++who
+        }
+      })
+      if (who < 2) {
+        // this.isGoOut = false
+        // this.alertContent = ['句读对战人数未满2人']
+        // this.$apply()
+        // this.$invoke('alert', 'open')
+        // return
+      }
+      this.startGame()
+    }
+  }
+  mixins = [initMixin, socketMixin]
   events = {
     globalBlur: () => {
       this.$broadcast('blur')
     }
   }
   data = {
-    question: ['温故知新', '初露锋芒', '学海无涯'],
-    firstQues: '温故知新',
+    questions: [],
+    times: [],
+    fightId: '',
+    openid: '',
+    currPeople: {},
     backgroundImage: Config.image.common.backgroundImageM,
     inviteHeader: Config.image.invitation.headerBackgroundImage,
-    peoples: [{
-      name: '申杨杨1',
-      url: 'https://wx.qlogo.cn/mmhead/Q3auHgzwzM4naQQof7QnxX2x95ugKAwXicEL7xt7wrFFhrvmmhsxj5g/0'
-    }, {
-      name: '申杨杨2',
-      url: 'https://wx.qlogo.cn/mmhead/Q3auHgzwzM4naQQof7QnxX2x95ugKAwXicEL7xt7wrFFhrvmmhsxj5g/0'
-    }, {
-      name: '申杨杨3',
-      url: 'https://wx.qlogo.cn/mmhead/Q3auHgzwzM4naQQof7QnxX2x95ugKAwXicEL7xt7wrFFhrvmmhsxj5g/0'
-    }, {
-      name: '申杨杨4',
-      url: 'https://wx.qlogo.cn/mmhead/Q3auHgzwzM4naQQof7QnxX2x95ugKAwXicEL7xt7wrFFhrvmmhsxj5g/0'
-    }]
+    alertBackground: Config.image.common.alertTitleBackgroundImage,
+    peoples: [{}, {}, {}, {}],
+    timeIndex: 0,
+    quesIndex: 0,
+    alertContent: [],
+    isLoading: true
+  }
+  updatePeople(peoples) {
+    let pp = peoples || []
+    this.peoples = [{}, {}, {}, {}]
+    pp.forEach((item, index) => {
+      this.peoples[index] = item
+    })
+    this.$apply()
+  }
+  getCurrPeople(openid) {
+    let people = this.peoples.filter(item => item.openId === openid)
+    this.currPeople = people[0]
+    this.$apply()
+  }
+  async ready(options) {
+    let {fightId} = options || {}
+    let sets = await wepy.getSetting()
+    if (!sets.authSetting['scope.userInfo']) {
+      this.isExit = false
+      if (fightId) {
+        wepy.navigateTo({
+          url: `/pages/auth?fightId=${fightId}`
+        })
+      } else {
+        wepy.navigateTo({
+          url: '/pages/auth'
+        })
+      }
+      return
+    }
+    let openid = wepy.getStorageSync('openid')
+    let battle = {}
+    if (!fightId) {
+      battle = await http({
+        url: Config.api.battle.create.url,
+        method: Config.api.battle.create.method,
+        data: {
+          openid
+        }
+      })
+    } else {
+      battle = await http({
+        url: Config.api.battle.join.url,
+        method: Config.api.battle.join.method,
+        data: {
+          openid,
+          fightId
+        }
+      })
+    }
+    if (battle && battle.success) {
+      let res = battle.result
+      let data = res.form
+      this.questions = data.libTypes || []
+      this.times = data.times || []
+      this.fightId = data.obj.fightId
+      this.openid = openid
+      this.$apply()
+      this.updatePeople(data.fightUser)
+      this.getCurrPeople(openid)
+      this.initSocket()
+    } else if (battle && !battle.success) {
+      let res = battle.obj || {}
+      let data = res.form
+      if (data) {
+        this.questions = data.libTypes || []
+        this.times = data.times || []
+        this.fightId = data.obj.fightId
+        this.openid = openid
+        this.$apply()
+        this.updatePeople(data.fightUser)
+        this.getCurrPeople(openid)
+      }
+      this.alertContent = [battle.result]
+      this.$apply()
+      this.$invoke('alert', 'open')
+    }
+    this.isLoading = false
+    this.$apply()
   }
 }
 </script>

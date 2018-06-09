@@ -5,12 +5,12 @@
       <view class="value">
         {{value || defaultValue}}
       </view>
-      <view hidden="{{isShow}}" class="picker_body" style="background-image: url('{{borderImage}}');">
-        <!-- <image class="flag_left"/>
-        <image class="flag_right"/> -->
+      <view wx:if="{{!isShow}}" class="picker_body" style="background-image: url('{{borderImage}}');">
         <view class="picker_wrap">
-          <view @tap.stop="select" wx:key="*this" wx:for="{{classes}}" wx:for-index="idx" wx:for-item="item" class="picker_item {{(value || defaultValue) == item ? 'active' : ''}} {{idx == 0 ? 'first' : ''}}">
-            {{item}}
+          <view wx:key="unique" wx:for="{{classes}}" wx:for-index="idx" wx:for-item="item" class="picker_item {{(value || defaultValue) == item ? 'active' : ''}} {{idx == 0 ? 'first' : ''}}" @tap.stop="select({{idx}})">
+            <image wx:if="{{activeValue == item.key}}" class="flag_right" src="{{arrowRightIcon}}"/>            
+            {{item.key}}
+            <image wx:if="{{activeValue == item.key}}" class="flag_left" src="{{arrowLeftIcon}}"/>
           </view>
         </view>
       </view>
@@ -26,16 +26,33 @@ export default class Picker extends wepy.component {
   data = {
     isShow: true,
     value: '',
-    borderImage: Config.image.invitation.borderImage
+    borderImage: Config.image.invitation.borderImage,
+    arrowLeftIcon: Config.image.invitation.arrowLeftIcon,
+    arrowRightIcon: Config.image.invitation.arrowRightIcon
   }
-  props = ['defaultValue', 'classes', 'title']
+  props = ['defaultValue', 'classes', 'title', 'user']
+  computed = {
+    activeValue() {
+      let val = this.value || this.defaultValue
+      return val
+    }
+  }
   methods = {
     focus() {
+      let user = this.user || {}
+      if (user.ower !== '01') return
+      if (!this.isShow) return
       this.$emit('globalBlur')
       this.isShow = false
       this.$apply()
     },
-    select() {}
+    select(index) {
+      let classes = this.classes || []
+      this.value = classes[index].key
+      this.isShow = true
+      this.$apply()
+      this.$emit('select', index)
+    }
   }
   events = {
     blur: () => {
@@ -86,8 +103,21 @@ export default class Picker extends wepy.component {
       top: 50rpx;
       width: 250rpx;
       height: 241rpx;
-      padding-top: 14rpx;
+      padding-top: 16rpx;
       .common-background-props();
+      .flag_left, .flag_right {
+        position: absolute;
+        top: 25rpx;
+        z-index: 2;
+        width: 14rpx;
+        height: 23rpx;
+      }
+      .flag_left {
+        right: -10rpx;
+      }
+      .flag_right {
+        left: -10rpx;
+      }
       .picker_wrap {
         display: flex;
         flex-direction: column;
@@ -100,6 +130,9 @@ export default class Picker extends wepy.component {
         overflow: hidden;
       }
       .picker_item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         position: relative;
         width: 177rpx;
         height: 74rpx;

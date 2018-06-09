@@ -50,7 +50,7 @@
         url: '/pages/selected-mode',
         title: '单人游戏'
       }, {
-        url: '/pages/index',
+        url: '/pages/battle-invite',
         title: '多人对战'
       }, {
         url: '/pages/ranking-list',
@@ -76,6 +76,12 @@
     events = {}
 
     async onShow() {
+      let sets = await wepy.getSetting()
+      if (!sets.authSetting['scope.userInfo']) {
+        wepy.navigateTo({
+          url: '/pages/auth?isHome=1'
+        })
+      }
       let latest = await http({
         url: Config.api.news.latest.url,
         method: Config.api.news.latest.method
@@ -88,7 +94,6 @@
         }
       }
     }
-
     onLoad() {
     }
   }

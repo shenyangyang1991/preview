@@ -194,18 +194,18 @@ export default class Games extends wepy.page {
       this.round = res.round
       this.content = res.content
       this.parseContent(res.content)
-      this.isLoading = false
       this.$apply()
       this.startTime = new Date()
     } else if (data && !data.success) {
-      // 错误
-      this.isLoading = false
-      this.$apply()
       wepy.showModal({
         content: data.result,
         showCancel: false
       })
     }
+    setTimeout(() => {
+      this.isLoading = false
+      this.$apply()
+    }, 800)
   }
 }
 </script>

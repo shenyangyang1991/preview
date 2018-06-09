@@ -3,16 +3,7 @@ import http from '@/util/request'
 import Config from '@/config/index'
 
 export default class initMixin extends wepy.mixin {
-  async onShow() {
-    let sets = await wepy.getSetting()
-    if (!sets.authSetting['scope.userInfo']) {
-      wepy.navigateTo({
-        url: '/pages/auth'
-      })
-    }
-  }
-
-  async onLoad() {
+  async onLoad(options) {
     wepy.showLoading({
       title: '正在加载...',
       mask: true
@@ -68,6 +59,6 @@ export default class initMixin extends wepy.mixin {
       }
     }
     wepy.hideLoading()
-    this.ready && this.ready()
+    this.ready && await this.ready(options)
   }
 }

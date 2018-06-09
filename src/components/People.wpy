@@ -1,16 +1,30 @@
 <template>
   <view class="people" style="background-image: url('{{playerBackgroundImage}}');">
     <view wx:key="unique" wx:for="{{peoples}}" wx:for-index="idx" wx:for-item="item" class="item">
-      <view wx:if="{{idx == 0}}" class="main">
-        房主
+      <view class="item-w" wx:if="{{item.headImgUrl}}">
+        <view wx:if="{{item.ower == '01'}}" class="main">
+          房主
+        </view>
+        <view class="face">
+          <image wx:if="{{item.headImgUrl}}" src="{{item.headImgUrl}}" class="face_img"></image>
+          <image wx:else style="width: 50rpx; height: 50rpx;" src="{{plusIcon}}" />
+        </view>
+        <view class="name">
+          {{item.name}}
+        </view>
       </view>
-      <view class="face">
-        <image wx:if="{{item.url}}" src="{{item.url}}" class="face_img"></image>
-        <image wx:else style="width: 50rpx; height: 50rpx;" src="{{plusIcon}}" />
-      </view>
-      <view class="name">
-        {{item.name}}
-      </view>
+      <button wx:else class="button-clear item-w" open-type="share">
+        <view wx:if="{{item.ower == '01'}}" class="main">
+          房主
+        </view>
+        <view class="face">
+          <image wx:if="{{item.headImgUrl}}" src="{{item.headImgUrl}}" class="face_img"></image>
+          <image wx:else style="width: 50rpx; height: 50rpx;" src="{{plusIcon}}" />
+        </view>
+        <view class="name">
+          {{item.name}}
+        </view>
+      </button>
     </view>
   </view>
 </template>
@@ -45,6 +59,11 @@
       width: 140rpx;
       margin: 0 10rpx;
 
+      .item-w {
+        position: relative;
+        width: 140rpx;
+      }
+
       .main {
         position: absolute;
         top: -15rpx;
@@ -68,11 +87,12 @@
         height: 140rpx;
         border: 5rpx solid #a0a0a0;
         border-radius: 10rpx;
+        overflow: hidden;
       }
 
       .face_img {
-        width: 130rpx;
-        height: 130rpx;
+        width: 140rpx;
+        height: 140rpx;
       }
 
       .name {
