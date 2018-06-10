@@ -95,6 +95,7 @@ export default class Games extends wepy.page {
     this.offsetLeft = scrollLeft
   }
   timer = null
+  doneTimer = null
   startTime = 0
   components = {
     'background-image-set': BackgroundImageSet,
@@ -161,9 +162,24 @@ export default class Games extends wepy.page {
   }
   done() {
     this.isGood = true
-    this.confirmContent = ['您是否提交本题已选答案？']
+    this.confirmContent = ['您是否提交本题已选答案？5']
     this.$apply()
     this.$invoke('q-confirm', 'open')
+    this.doneTimeController()
+  }
+  doneTimeController() {
+    let counts = 5
+    this.doneTimer = setInterval(() => {
+      --counts
+      if (counts === 0) {
+        clearInterval(this.doneTimer)
+        this.exits(true)
+        this.isGood = false
+        return
+      }
+      this.confirmContent = [`您是否提交本题已选答案？${counts}`]
+      this.$apply()
+    }, 1000)
   }
   exits(is) {
     this.finish(() => {
@@ -230,6 +246,7 @@ export default class Games extends wepy.page {
       this.$invoke('q-confirm', 'open')
     },
     submit() {
+      if (this.doneTimer) clearInterval(this.doneTimer)
       if (this.isGood) {
         this.exits(true)
       } else {
@@ -238,6 +255,7 @@ export default class Games extends wepy.page {
       this.isGood = false
     },
     quit() {
+      if (this.doneTimer) clearInterval(this.doneTimer)
       if (this.isGood) {
         this.isExit = false
         this.isGameOver = true
@@ -290,6 +308,7 @@ export default class Games extends wepy.page {
   }
   onUnload() {
     if (this.timer) clearInterval(this.timer)
+    if (this.doneTimer) clearInterval(this.doneTimer)
   }
   async onLoad(options) {
     let {classes, fightId, times, name, id, headImgUrl} = options
@@ -321,6 +340,7 @@ export default class Games extends wepy.page {
       this.content = res.content
       this.parseContent(res.content)
       this.time = parseInt(times) * 60 || 300
+      // this.time = 10
       this.$apply()
       this.startTime = new Date()
       this.timeControll()

@@ -1,6 +1,6 @@
 <template>
   <background-image-set :src="image.backgroundImage">
-    <section>
+    <section wx:if="{{!isLoading}}">
       <view wx:if="{{result.exit == 'normal'}}" class="position_name">第{{result.rank}}名</view>
       <view wx:else class="position_name">您已逃跑</view>
       <view class="result_cn" style="background-image: url('{{resultBackgroundImage}}');">
@@ -43,6 +43,7 @@
         </view> -->
       </view>
     </section>
+    <image wx:if="{{isLoading}}" class="loading" src="{{loadBackgroundImage}}" />
   </background-image-set>
 </template>
 
@@ -64,7 +65,9 @@
     data = {
       resultBackgroundImage: Config.image.result.resultBackgroundImage,
       battleResultBackground: Config.image.result.battleResultBackground,
-      result: {}
+      result: {},
+      isLoading: true,
+      loadBackgroundImage: Config.image.common.loadingBackgroundImage
     }
 
     computed = {}
@@ -101,6 +104,8 @@
           showCancel: false
         })
       }
+      this.isLoading = false
+      this.$apply()
     }
   }
 </script>

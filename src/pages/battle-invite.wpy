@@ -52,7 +52,7 @@ import Config from '@/config/index'
 export default class BattleInvite extends wepy.page {
   onShareAppMessage() {
     return {
-      title: '学识何如观点书，敢一战否？',
+      title: '学识何如观点书敢一战否？',
       path: `/pages/battle-invite?fightId=${this.fightId}`
       // imageUrl: Config.image.sharePreview
     }
@@ -162,22 +162,24 @@ export default class BattleInvite extends wepy.page {
     this.currPeople = people[0]
     this.$apply()
   }
-  async ready(options) {
+  async auth(options) {
     let {fightId} = options || {}
     let sets = await wepy.getSetting()
     if (!sets.authSetting['scope.userInfo']) {
       this.isExit = false
       if (fightId) {
-        wepy.navigateTo({
+        await wepy.navigateTo({
           url: `/pages/auth?fightId=${fightId}`
         })
       } else {
-        wepy.navigateTo({
+        await wepy.navigateTo({
           url: '/pages/auth'
         })
       }
-      return
     }
+  }
+  async ready(options) {
+    let {fightId} = options || {}
     let openid = wepy.getStorageSync('openid')
     let battle = {}
     if (!fightId) {
@@ -210,6 +212,7 @@ export default class BattleInvite extends wepy.page {
       this.getCurrPeople(openid)
       this.initSocket()
     } else if (battle && !battle.success) {
+      this.isExit = false
       let res = battle.obj || {}
       let data = res.form
       if (data) {

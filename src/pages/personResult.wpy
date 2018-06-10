@@ -38,9 +38,6 @@
   import TopNavButton from '@/components/TopNavButton'
   import Config from '@/config/index'
   import http from '@/util/request'
-  import {connect} from 'wepy-redux'
-
-  @connect({})
 
   export default class battleInvite extends wepy.page {
     config = {

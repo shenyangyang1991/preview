@@ -97,7 +97,7 @@ export default class Auth extends wepy.page {
   text-align: center;
   line-height: 75rpx;
 
-  border: 1rpx solid #000000;
+  border: 1px solid #000000;
   border-radius: 14rpx;
   background-color: #fff;
 }

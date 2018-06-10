@@ -75,13 +75,16 @@
 
     events = {}
 
-    async onShow() {
+    async auth() {
       let sets = await wepy.getSetting()
       if (!sets.authSetting['scope.userInfo']) {
-        wepy.navigateTo({
+        await wepy.navigateTo({
           url: '/pages/auth?isHome=1'
         })
       }
+    }
+
+    async onShow() {
       let latest = await http({
         url: Config.api.news.latest.url,
         method: Config.api.news.latest.method

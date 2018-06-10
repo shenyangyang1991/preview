@@ -27,9 +27,6 @@
   import TopNavContainer from '@/components/TopNavContainer'
   import TopNavButton from '@/components/TopNavButton'
   import Config from '@/config/index'
-  import {connect} from 'wepy-redux'
-
-  @connect({})
 
   export default class selectedMode extends wepy.page {
     config = {

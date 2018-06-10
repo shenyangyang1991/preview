@@ -59,7 +59,7 @@
 
     .message_wrap {
       position: relative;
-      border: 1rpx solid #dcd5c2;
+      border: 1px solid #dcd5c2;
       border-radius: 0 0 16rpx 16rpx;
       overflow: hidden;
 

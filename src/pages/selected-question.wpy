@@ -20,9 +20,6 @@
   import TopNavButton from '@/components/TopNavButton'
   import Selector from '@/components/Selector'
   import Config from '@/config/index'
-  import {connect} from 'wepy-redux'
-
-  @connect({})
 
   export default class selectedQuestion extends wepy.page {
     config = {

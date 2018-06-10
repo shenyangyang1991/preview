@@ -119,7 +119,7 @@ export default class Confirm extends wepy.component {
   line-height: 60rpx;
   color: #a0958b;
 
-  border: 1rpx solid #a0958b;
+  border: 1px solid #a0958b;
   border-radius: 30rpx;
 }
 

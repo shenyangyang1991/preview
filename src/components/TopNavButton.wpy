@@ -22,7 +22,7 @@
     line-height: 50rpx;
     text-align: center;
 
-    border: 1rpx solid #000000;
+    border: 1px solid #000000;
     border-radius: 6rpx;
 
     background-color: #ffffff;
