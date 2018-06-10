@@ -1,5 +1,5 @@
 <template>
-  <background-image-set :src="image.backgroundImage">
+  <background-image-set :src="backgroundImage">
     <section wx:if="{{!isLoading}}">
       <view wx:if="{{result.exit == 'normal'}}" class="position_name">第{{result.rank}}名</view>
       <view wx:else class="position_name">您已逃跑</view>
@@ -43,7 +43,7 @@
         </view> -->
       </view>
     </section>
-    <image wx:if="{{isLoading}}" class="loading" src="{{loadBackgroundImage}}" />
+    <!-- <image wx:if="{{isLoading}}" class="loading" src="{{loadBackgroundImage}}" /> -->
   </background-image-set>
 </template>
 
@@ -67,7 +67,8 @@
       battleResultBackground: Config.image.result.battleResultBackground,
       result: {},
       isLoading: true,
-      loadBackgroundImage: Config.image.common.loadingBackgroundImage
+      loadBackgroundImage: Config.image.common.loadingBackgroundImage,
+      backgroundImage: Config.image.common.backgroundImageM
     }
 
     computed = {}
@@ -88,6 +89,10 @@
     events = {}
 
     async onLoad(options) {
+      wepy.showLoading({
+        title: '获取排名中...',
+        mask: true
+      })
       let openid = wepy.getStorageSync('openid')
       let {fightId, round, type} = options
       let data = await http({
@@ -104,6 +109,7 @@
           showCancel: false
         })
       }
+      wepy.hideLoading()
       this.isLoading = false
       this.$apply()
     }

@@ -17,6 +17,7 @@ export default class socketMixin extends wepy.mixin {
   initSocket() {
     this.connectSocket()
     wepy.onSocketOpen(() => {
+      this.socketCount = 0
       this.sendJoinBattle()
     })
     wepy.onSocketMessage(res => {
@@ -26,6 +27,22 @@ export default class socketMixin extends wepy.mixin {
           let json = JSON.parse(data)
           this.subscribe(json)
         } catch (e) {}
+      }
+    })
+    wepy.onSocketError(async () => {
+      setTimeout(() => {
+        if (this.socketCount === 9) {
+          this.socketCount = 0
+          return
+        }
+        ++this.socketCount
+        this.connectSocket()
+      }, 1000)
+    })
+
+    wepy.onSocketClose(async () => {
+      if (!this.isClose) {
+        this.connectSocket()
       }
     })
   }
@@ -112,6 +129,13 @@ export default class socketMixin extends wepy.mixin {
         url: `/pages/battle-games?fightId=${fightId}&classes=${libType}&times=${minute}&name=${name}&headImgUrl=${headImgUrl}&id=${id}`
       })
     } else if (op === 'end') {
+      let {endReq, round, libType} = data
+      if (endReq === 'true') {
+        let urls = `/pages/battle-result?fightId=${this.fightId}&round=${round}&type=${libType}`
+        wepy.redirectTo({
+          url: urls
+        })
+      }
     }
   }
   async gameOver() {
@@ -130,22 +154,25 @@ export default class socketMixin extends wepy.mixin {
       data: json
     })
   }
+  isClose = false
   isGameOver = false
   isExit = true
   isGoOut = true
+  socketCount = 0
   async onUnload() {
     if (this.isExit) {
       await this.exitGame()
+      this.isClose = true
       this.disconnectSocket()
     }
     if (this.isGameOver) {
-      await this.gameOver()
+      this.isClose = true
       this.disconnectSocket()
     }
     this.isGameOver = false
     this.isExit = true
   }
-  disconnectSocket() {
-    wepy.closeSocket()
+  async disconnectSocket() {
+    await wepy.closeSocket()
   }
 }

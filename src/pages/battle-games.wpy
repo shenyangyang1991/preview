@@ -173,6 +173,7 @@ export default class Games extends wepy.page {
       --counts
       if (counts === 0) {
         clearInterval(this.doneTimer)
+        this.$invoke('q-confirm', 'close')
         this.exits(true)
         this.isGood = false
         return
@@ -186,14 +187,19 @@ export default class Games extends wepy.page {
       if (is) {
         this.isExit = false
         this.isGameOver = true
+        wepy.showLoading({
+          title: '排名计算中...',
+          mask: true
+        })
+        this.gameOver()
       } else {
         this.isExit = true
         this.isGameOver = false
+        let urls = `/pages/battle-result?fightId=${this.fightId}&round=${this.round}&type=${this.classes}`
+        wepy.redirectTo({
+          url: urls
+        })
       }
-      let urls = `/pages/battle-result?fightId=${this.fightId}&round=${this.round}&type=${this.classes}`
-      wepy.redirectTo({
-        url: urls
-      })
     })
   }
   nextAndSubmit() {
@@ -259,14 +265,18 @@ export default class Games extends wepy.page {
       if (this.isGood) {
         this.isExit = false
         this.isGameOver = true
+        wepy.showLoading({
+          title: '排名计算中...',
+          mask: true
+        })
       } else {
         this.isExit = true
         this.isGameOver = false
+        let urls = `/pages/battle-result?fightId=${this.fightId}&round=${this.round}&type=${this.classes}`
+        wepy.redirectTo({
+          url: urls
+        })
       }
-      let urls = `/pages/battle-result?fightId=${this.fightId}&round=${this.round}&type=${this.classes}`
-      wepy.redirectTo({
-        url: urls
-      })
     },
     selectEvt(tp, col, unit) {
       if (tp === 'select') {
