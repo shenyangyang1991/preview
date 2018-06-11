@@ -18,6 +18,7 @@ export default class socketMixin extends wepy.mixin {
     this.connectSocket()
     wepy.onSocketOpen(() => {
       this.socketCount = 0
+      this.socketStatus = true
       this.sendJoinBattle()
     })
     wepy.onSocketMessage(res => {
@@ -29,21 +30,38 @@ export default class socketMixin extends wepy.mixin {
         } catch (e) {}
       }
     })
-    wepy.onSocketError(async () => {
-      setTimeout(() => {
-        if (this.socketCount === 9) {
-          this.socketCount = 0
-          return
-        }
-        ++this.socketCount
-        this.connectSocket()
-      }, 1000)
+    wepy.onSocketError(async (e) => {
+      this.socketStatus = false
+      // setTimeout(async () => {
+      //   if (this.socketCount === 9) {
+      //     this.socketCount = 0
+      //     return
+      //   }
+      //   ++this.socketCount
+      //   this.connectSocket()
+      // }, 1000)
     })
 
     wepy.onSocketClose(async () => {
-      if (!this.isClose) {
-        this.connectSocket()
+      this.socketStatus = false
+      if (!this.$parent.isClose) {
+        let confirms = await wepy.showModal({
+          title: '网络提示',
+          content: '游戏网络断开连接，请检查网络重连',
+          showCancel: true,
+          cancelText: '退出',
+          confirmText: '重连'
+        })
+        if (confirms.confirm) {
+          this.connectSocket()
+        } else {
+          this.isExit = false
+          wepy.reLaunch({
+            url: '/pages/index'
+          })
+        }
       }
+      this.$parent.isClose = false
     })
   }
   sendJoinBattle() {
@@ -161,7 +179,7 @@ export default class socketMixin extends wepy.mixin {
       })
     }, 30000)
   }
-  isClose = false
+  socketStatus = false
   isGameOver = false
   isExit = true
   isGoOut = true
@@ -169,11 +187,11 @@ export default class socketMixin extends wepy.mixin {
   async onUnload() {
     if (this.isExit) {
       await this.exitGame()
-      this.isClose = true
+      this.$parent.isClose = true
       this.disconnectSocket()
     }
     if (this.isGameOver) {
-      this.isClose = true
+      this.$parent.isClose = true
       this.disconnectSocket()
     }
     this.isGameOver = false

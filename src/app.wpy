@@ -47,6 +47,8 @@ export default class extends wepy.app {
 
   userStatus = false
 
+  isClose = false
+
   onLaunch() {
   }
 }

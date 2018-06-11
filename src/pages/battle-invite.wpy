@@ -119,11 +119,11 @@ export default class BattleInvite extends wepy.page {
         }
       })
       if (who < 2) {
-        this.isGoOut = false
-        this.alertContent = ['句读对战人数未满2人']
-        this.$apply()
-        this.$invoke('alert', 'open')
-        return
+        // this.isGoOut = false
+        // this.alertContent = ['句读对战人数未满2人']
+        // this.$apply()
+        // this.$invoke('alert', 'open')
+        // return
       }
       this.startGame()
     }
