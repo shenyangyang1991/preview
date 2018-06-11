@@ -6,13 +6,13 @@
         {{value || defaultValue}}
       </view>
       <view wx:if="{{!isShow}}" class="picker_body" style="background-image: url('{{borderImage}}');">
-        <view class="picker_wrap">
+        <scroll-view class="picker_wrap" scroll-y>
           <view wx:key="unique" wx:for="{{classes}}" wx:for-index="idx" wx:for-item="item" class="picker_item {{(value || defaultValue) == item ? 'active' : ''}} {{idx == 0 ? 'first' : ''}}" @tap.stop="select({{idx}})">
             <image wx:if="{{activeValue == item.key}}" class="flag_right" src="{{arrowRightIcon}}"/>            
             {{item.key}}
             <image wx:if="{{activeValue == item.key}}" class="flag_left" src="{{arrowLeftIcon}}"/>
           </view>
-        </view>
+        </scroll-view>
       </view>
     </view>
   </view>
@@ -136,6 +136,7 @@ export default class Picker extends wepy.component {
         position: relative;
         width: 177rpx;
         height: 74rpx;
+        margin: 0 auto;
         .font("medium");
         font-size: 37rpx;
         text-align: center;

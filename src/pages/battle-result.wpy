@@ -2,7 +2,7 @@
   <background-image-set :src="backgroundImage">
     <section wx:if="{{!isLoading}}">
       <view wx:if="{{result.exit == 'normal'}}" class="position_name">第{{result.rank}}名</view>
-      <view wx:else class="position_name">您已逃跑</view>
+      <view wx:if="{{result.exit == 'abnormal'}}" class="position_name">您已逃跑</view>
       <view class="result_cn" style="background-image: url('{{resultBackgroundImage}}');">
         <view class="p">您共句读{{result.wordCount}}字  </view>
         <view class="p">总用时：{{result.useTime}}</view>

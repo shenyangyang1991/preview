@@ -8,8 +8,10 @@
       </view>
       <game-screen :offsetLeft.sync="offsetLeft" :contentWidth.sync="contentWidth" :list.sync="list" @answer.user="selectEvt"></game-screen>
       <view class="games_submit">
-        <view class="games_btn" @tap="presubmit">
-          【 句读毕 】
+        <view class="games_submit_group">
+          <view class="games_btn" @tap="presubmit">
+            【 句读毕 】
+          </view>
         </view>
       </view>
     </view>

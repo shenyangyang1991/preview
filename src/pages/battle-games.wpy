@@ -108,6 +108,9 @@ export default class Games extends wepy.page {
     let pp = peoples || []
     this.peoples = [{}, {}, {}, {}]
     pp.forEach((item, index) => {
+      if (index >= this.peoples.length) {
+        return
+      }
       this.peoples[index] = item
     })
     this.$apply()

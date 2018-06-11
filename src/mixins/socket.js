@@ -113,6 +113,14 @@ export default class socketMixin extends wepy.mixin {
       data: json
     })
   }
+  goStarts(data) {
+    this.isExit = false
+    let {fightId, libType, minute} = data
+    let {name, headImgUrl, id} = this.currPeople || {}
+    wepy.redirectTo({
+      url: `/pages/battle-games?fightId=${fightId}&classes=${libType}&times=${minute}&name=${name}&headImgUrl=${headImgUrl}&id=${id}`
+    })
+  }
   subscribe(data) {
     let {op} = data
     if (op === 'join') {
@@ -120,6 +128,12 @@ export default class socketMixin extends wepy.mixin {
       this.getCurrPeople(this.openid)
       if (this.currPeople && this.currPeople.ower == '01') {
         this.updateBattleContent()
+      }
+      let fight = data.fight || {}
+      if (!this.isStart && fight.status === '02') {
+        //start
+        this.isStart = false
+        this.goStarts(fight)
       }
     } else if (op === 'update') {
       let {minute, libType} = data
@@ -140,12 +154,8 @@ export default class socketMixin extends wepy.mixin {
       this.updatePeople(data.fightUsers)
       this.getCurrPeople(this.openid)
     } else if (op === 'start') {
-      this.isExit = false
-      let {fightId, libType, minute} = data
-      let {name, headImgUrl, id} = this.currPeople || {}
-      wepy.redirectTo({
-        url: `/pages/battle-games?fightId=${fightId}&classes=${libType}&times=${minute}&name=${name}&headImgUrl=${headImgUrl}&id=${id}`
-      })
+      this.isStart = true
+      this.goStarts(data)
     } else if (op === 'end') {
       let {endReq, round, libType} = data
       if (endReq === 'true') {
@@ -184,6 +194,7 @@ export default class socketMixin extends wepy.mixin {
   isExit = true
   isGoOut = true
   socketCount = 0
+  isStart = false
   async onUnload() {
     if (this.isExit) {
       await this.exitGame()

@@ -11,12 +11,14 @@
       <view class="games_from">
         {{result.source}}
       </view>
-      <view class="games_btn_group">
-        <view class="games_btn jl" @tap="next">
-          【 下一题 】
-        </view>
-        <view class="games_btn" @tap="getScore">
-          【 我的成绩单 】
+      <view class="games_submit">
+        <view class="games_btn_group">
+          <view class="games_btn jl" @tap="next">
+            【 下一题 】
+          </view>
+          <view class="games_btn" @tap="getScore">
+            【 我的成绩单 】
+          </view>
         </view>
       </view>
     </view>
