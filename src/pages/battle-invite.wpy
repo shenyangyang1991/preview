@@ -52,7 +52,7 @@ import Config from '@/config/index'
 export default class BattleInvite extends wepy.page {
   onShareAppMessage() {
     return {
-      title: '学识何如观点书敢一战否？',
+      title: '学识何如观点书，敢一战否？',
       path: `/pages/battle-invite?fightId=${this.fightId}`
       // imageUrl: Config.image.sharePreview
     }
