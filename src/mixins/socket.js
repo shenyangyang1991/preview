@@ -138,6 +138,7 @@ export default class socketMixin extends wepy.mixin {
       }
     }
   }
+  overTime = null
   async gameOver() {
     let go = await http({
       url: Config.api.battle.end.url,
@@ -153,6 +154,12 @@ export default class socketMixin extends wepy.mixin {
     wepy.sendSocketMessage({
       data: json
     })
+    this.overTime = setTimeout(() => {
+      let urls = `/pages/battle-result?fightId=${this.fightId}&round=${this.round}&type=${this.classes}`
+      wepy.redirectTo({
+        url: urls
+      })
+    }, 30000)
   }
   isClose = false
   isGameOver = false
@@ -171,6 +178,7 @@ export default class socketMixin extends wepy.mixin {
     }
     this.isGameOver = false
     this.isExit = true
+    if (this.overTime) clearTimeout(this.overTime)
   }
   async disconnectSocket() {
     await wepy.closeSocket()
