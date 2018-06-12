@@ -19,6 +19,7 @@ export default class socketMixin extends wepy.mixin {
     wepy.onSocketOpen(() => {
       this.socketCount = 0
       this.socketStatus = true
+      this.isOnLine = true
       this.sendJoinBattle()
     })
     wepy.onSocketMessage(res => {
@@ -32,19 +33,14 @@ export default class socketMixin extends wepy.mixin {
     })
     wepy.onSocketError(async (e) => {
       this.socketStatus = false
-      // setTimeout(async () => {
-      //   if (this.socketCount === 9) {
-      //     this.socketCount = 0
-      //     return
-      //   }
-      //   ++this.socketCount
-      //   this.connectSocket()
-      // }, 1000)
+      this.isOnLine = false
     })
 
     wepy.onSocketClose(async () => {
       this.socketStatus = false
+      this.isOnLine = false
       if (!this.$parent.isClose) {
+        this.isReLine = true
         let confirms = await wepy.showModal({
           title: '网络提示',
           content: '游戏网络断开连接，请检查网络重连',
@@ -54,8 +50,10 @@ export default class socketMixin extends wepy.mixin {
         })
         if (confirms.confirm) {
           this.connectSocket()
+          this.isReLine = false
         } else {
           this.isExit = false
+          this.isReLine = false
           wepy.reLaunch({
             url: '/pages/index'
           })
@@ -195,13 +193,15 @@ export default class socketMixin extends wepy.mixin {
   isGoOut = true
   socketCount = 0
   isStart = false
+  isOnLine = false
+  isReLine = false
   async onUnload() {
-    if (this.isExit) {
+    if (this.isExit && this.isOnLine) {
       await this.exitGame()
       this.$parent.isClose = true
       this.disconnectSocket()
     }
-    if (this.isGameOver) {
+    if (this.isGameOver && this.isOnLine) {
       this.$parent.isClose = true
       this.disconnectSocket()
     }

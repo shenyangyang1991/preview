@@ -67,7 +67,8 @@ export default class Games extends wepy.page {
     timeVal: '',
     quesVal: '',
     quesIndex: 0,
-    timeIndex: 0
+    timeIndex: 0,
+    timeCount: 0
   }
   sys = {}
   isGood = false
@@ -122,6 +123,7 @@ export default class Games extends wepy.page {
       this.$apply()
     }
   }
+  noneFn(time) {}
   async finish(cb) {
     let result = ''
     let tmps = this.content.split('')
@@ -139,7 +141,8 @@ export default class Games extends wepy.page {
     param.id = this.questionId
     param.fightId = this.fightId
     let csTime = parseInt((endTime - this.startTime) / 1000) || 0
-    param.useTime = csTime
+    this.noneFn(csTime)
+    param.useTime = this.timeCount - this.time
     param.type = this.classes
     option.url = Config.api.battle.submit.url
     option.method = Config.api.battle.submit.method
@@ -353,6 +356,7 @@ export default class Games extends wepy.page {
       this.content = res.content
       this.parseContent(res.content)
       this.time = parseInt(times) * 60 || 300
+      this.timeCount = parseInt(times) * 60 || 300
       // this.time = 10
       this.$apply()
       this.startTime = new Date()
