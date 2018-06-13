@@ -82,7 +82,7 @@
 					"id": 8,
 					"name": "invite",
 					"pathName": "pages/battle-invite",
-					"query": ""
+					"query": "fightId=8ab3b35f63f49fad0163f4c093b70029"
 				},
 				{
 					"id": -1,

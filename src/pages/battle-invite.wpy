@@ -213,9 +213,10 @@ export default class BattleInvite extends wepy.page {
       this.$apply()
       this.updatePeople(data.fightUser)
       this.getCurrPeople(openid)
-      if (!this.isOnLine && !this.isReLine) this.initSocket()
+      this.initSocket()
     } else if (battle && !battle.success) {
       this.isExit = false
+      this.isQuit = true
       let res = battle.obj || {}
       let data = res.form
       if (data) {

@@ -177,11 +177,12 @@ export default class Games extends wepy.page {
     let counts = 5
     this.doneTimer = setInterval(() => {
       --counts
-      if (counts === 0) {
+      if (counts <= 0) {
         clearInterval(this.doneTimer)
         this.$invoke('q-confirm', 'close')
         this.exits(true)
         this.isGood = false
+        counts = 5
         return
       }
       this.confirmContent = [`您是否提交本题已选答案？${counts}`]

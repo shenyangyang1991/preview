@@ -36,10 +36,6 @@ export default class extends wepy.app {
       navigationBarBackgroundColor: '#fff',
       navigationBarTitleText: '句读',
       navigationBarTextStyle: 'black'
-    },
-    networkTimeout: {
-      request: 3000,
-      connectSocket: 3000
     }
   }
 
